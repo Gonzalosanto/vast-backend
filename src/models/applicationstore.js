@@ -1,4 +1,5 @@
 'use strict';
+import { operatingSystem } from './operatingsystem'
 const {
   Model
 } = require('sequelize');
@@ -10,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      operatingSystem.hasMany(applicationStore)
+      this.belongsTo(models.operatingSystem)
     }
   }
   applicationStore.init({
