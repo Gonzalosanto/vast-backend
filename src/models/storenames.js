@@ -10,7 +10,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      this.belongsTo(models['applicationstore'])
+      this.belongsTo(models['applicationname'])
+      this.belongsToMany(models['applicationbundle'], {through: models['bundlestorenames']})
+      this.hasMany(models['bundlestorenames'])
     }
   }
   storenames.init({
