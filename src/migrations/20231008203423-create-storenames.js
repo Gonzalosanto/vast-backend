@@ -2,15 +2,18 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('applicationStores', {
+    await queryInterface.createTable('storenames', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      store: {
-        type: Sequelize.STRING
+      applicationNameId: {
+        type: Sequelize.INTEGER
+      },
+      applicationStoreId: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -22,8 +25,5 @@ module.exports = {
       }
     });
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.removeColumn('operatingSystemId');
-    await queryInterface.dropTable('applicationStores');
-  }
+  async down(queryInterface, Sequelize) {}
 };
