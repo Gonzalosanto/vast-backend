@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { DevicesService } from './devices.service';
-import { DevicesController } from './devices.controller';
+import { DatabaseModule } from 'src/core/database.module';
+import { DeviceId } from './entities/device.entity';
 
 @Module({
-  controllers: [DevicesController],
-  providers: [DevicesService],
+  imports: [DatabaseModule],
+  providers: [DevicesService, {provide: 'DEVICE_REPOSITORY', useValue: DeviceId}],
+  exports: [DevicesService]
 })
 export class DevicesModule {}

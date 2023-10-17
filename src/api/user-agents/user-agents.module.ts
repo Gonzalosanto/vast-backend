@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { UserAgentsService } from './user-agents.service';
-import { UserAgentsController } from './user-agents.controller';
+import { DatabaseModule } from 'src/core/database.module';
+import { UserAgent } from './entities/user-agent.entity';
 
 @Module({
-  controllers: [UserAgentsController],
-  providers: [UserAgentsService],
+  imports:[DatabaseModule],
+  providers: [UserAgentsService, {provide: 'UA_REPOSITORY', useValue: UserAgent}],
+  exports: [UserAgentsService],
 })
 export class UserAgentsModule {}

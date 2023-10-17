@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { StoreUrlsService } from './store-urls.service';
-import { StoreUrlsController } from './store-urls.controller';
+import { DatabaseModule } from 'src/core/database.module';
 
 @Module({
-  controllers: [StoreUrlsController],
-  providers: [StoreUrlsService],
+  imports:[DatabaseModule],
+  // controllers: [StoreUrlsController],
+  providers: [StoreUrlsService, { provide:'STORE_REPOSITORY', useValue: StoreUrlsService}],
 })
 export class StoreUrlsModule {}

@@ -1,9 +1,15 @@
 import { Module } from '@nestjs/common';
 import { OperatingSystemsService } from './operating-systems.service';
-import { OperatingSystemsController } from './operating-systems.controller';
+import { OperatingSystem } from './entities/operating-system.entity';
+import { DatabaseModule } from 'src/core/database.module';
 
 @Module({
-  controllers: [OperatingSystemsController],
-  providers: [OperatingSystemsService],
+  imports: [DatabaseModule],
+  providers: [ OperatingSystemsService,
+    {
+      provide: 'OS',
+      useValue: OperatingSystem,
+  }],
+  exports: [OperatingSystemsService]
 })
 export class OperatingSystemsModule {}
