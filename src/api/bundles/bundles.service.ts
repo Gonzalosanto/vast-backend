@@ -4,10 +4,7 @@ import { BUNDLE_REPOSITORY } from 'src/constants';
 
 @Injectable()
 export class BundlesService {
-  constructor(
-    @Inject(BUNDLE_REPOSITORY)
-    private bundleRepository: typeof applicationBundle,
-  ) {}
+  constructor(@Inject(BUNDLE_REPOSITORY) private bundleRepository: typeof applicationBundle){}
 
   async findAll(): Promise<applicationBundle[]> {
     return this.bundleRepository.findAll();

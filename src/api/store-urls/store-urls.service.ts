@@ -1,19 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CreateStoreUrlDto } from './dto/create-store-url.dto';
 import { UpdateStoreUrlDto } from './dto/update-store-url.dto';
+import { applicationStore } from './entities/store-url.entity';
 
 @Injectable()
 export class StoreUrlsService {
+  constructor(@Inject('STORE_REPOSITORY') private storeRepository: typeof applicationStore){}
   create(createStoreUrlDto: CreateStoreUrlDto) {
-    return createStoreUrlDto;
+    return this.storeRepository.create();
   }
 
   findAll() {
-    return `This action returns all storeUrls`;
+    return this.storeRepository.findAll();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} storeUrl`;
+    return this.storeRepository.findAll();
   }
 
   update(id: number, updateStoreUrlDto: UpdateStoreUrlDto) {

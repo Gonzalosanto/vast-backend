@@ -1,1 +1,3 @@
-export class CreateOperatingSystemDto {}
+export class CreateOperatingSystemDto {
+    os: string;
+}
