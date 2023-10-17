@@ -4,7 +4,7 @@ import { DatabaseModule } from 'src/core/database.module';
 
 @Module({
   imports:[DatabaseModule],
-  // controllers: [StoreUrlsController],
   providers: [StoreUrlsService, { provide:'STORE_REPOSITORY', useValue: StoreUrlsService}],
+  exports: [StoreUrlsService]
 })
 export class StoreUrlsModule {}
