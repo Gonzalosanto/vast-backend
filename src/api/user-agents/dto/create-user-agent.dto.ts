@@ -1,1 +1,3 @@
-export class CreateUserAgentDto {}
+export class CreateUserAgentDto {
+    ua:string
+}
