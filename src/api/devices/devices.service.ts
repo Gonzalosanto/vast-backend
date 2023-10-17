@@ -1,15 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
+import { DeviceId } from './entities/device.entity';
 
 @Injectable()
 export class DevicesService {
+  constructor(@Inject('DEVICE_REPOSITORY') private devicesRepository: typeof DeviceId){}
   create(createDeviceDto: CreateDeviceDto) {
-    return createDeviceDto;
+    return this.devicesRepository.create({createDeviceDto});
   }
 
   findAll() {
-    return `This action returns all devices`;
+    return this.devicesRepository.findAll();
   }
 
   findOne(id: number) {

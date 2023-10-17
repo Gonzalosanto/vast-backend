@@ -1,26 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import {} from 'sequelize-typescript'
 import { CreateOperatingSystemDto } from './dto/create-operating-system.dto';
 import { UpdateOperatingSystemDto } from './dto/update-operating-system.dto';
+import { OperatingSystem } from './entities/operating-system.entity';
 
 @Injectable()
 export class OperatingSystemsService {
-  create(createOperatingSystemDto: CreateOperatingSystemDto) {
-    return createOperatingSystemDto;
+  constructor(@Inject('OS') private operatingSystem: typeof OperatingSystem){}
+  async create(createOperatingSystemDto: any) {
+    return this.operatingSystem.create(createOperatingSystemDto);
   }
 
-  findAll() {
-    return `This action returns all operatingSystems`;
+  async findAll() {
+    return this.operatingSystem.findAll();
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return `This action returns a #${id} operatingSystem`;
   }
 
-  update(id: number, updateOperatingSystemDto: UpdateOperatingSystemDto) {
+  async update(id: number, updateOperatingSystemDto: UpdateOperatingSystemDto) {
     return `This action updates a #${id} operatingSystem ${updateOperatingSystemDto}`;
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} operatingSystem`;
   }
 }

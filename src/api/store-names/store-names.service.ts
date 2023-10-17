@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateStoreNameDto } from './dto/create-store-name.dto';
 import { UpdateStoreNameDto } from './dto/update-store-name.dto';
+import { StoreNames } from './entities/store-name.entity';
 
 @Injectable()
 export class StoreNamesService {
+  constructor(@Inject('SN_REPOSITORY') private storeNameRepository: typeof StoreNames){}
   create(createStoreNameDto: CreateStoreNameDto) {
-    return createStoreNameDto;
+    return this.storeNameRepository.create({createStoreNameDto});
   }
 
   findAll() {

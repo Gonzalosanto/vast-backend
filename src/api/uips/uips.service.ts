@@ -1,15 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateUipDto } from './dto/create-uip.dto';
 import { UpdateUipDto } from './dto/update-uip.dto';
+import { Uip } from './entities/uip.entity';
 
 @Injectable()
 export class UipsService {
+  constructor(@Inject('UIP_REPOSITORY') private uipRepository: typeof Uip){}
   create(createUipDto: CreateUipDto) {
-    return createUipDto;
+    return this.uipRepository.create();
   }
 
   findAll() {
-    return `This action returns all uips`;
+    return this.uipRepository.findAll();
   }
 
   findOne(id: number) {
