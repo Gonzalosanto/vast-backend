@@ -8,11 +8,16 @@ import { OperatingSystem } from './entities/operating-system.entity';
 export class OperatingSystemsService {
   constructor(@Inject('OS') private operatingSystem: typeof OperatingSystem){}
   async create(createOperatingSystemDto: any) {
+    if((await this.findBy({where: createOperatingSystemDto})).length > 0) return;
     return this.operatingSystem.create(createOperatingSystemDto);
   }
 
   async findAll() {
     return this.operatingSystem.findAll();
+  }
+
+  async findBy(where: any): Promise<any> {
+    return this.operatingSystem.findAll(where);
   }
 
   async findOne(id: number) {
