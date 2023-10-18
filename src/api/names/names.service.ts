@@ -1,26 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CreateNameDto } from './dto/create-name.dto';
 import { UpdateNameDto } from './dto/update-name.dto';
+import { applicationName } from './entities/name.entity';
 
 @Injectable()
 export class NamesService {
-  create(createNameDto: CreateNameDto) {
-    return createNameDto;
+  constructor(@Inject('NAME_REPOSITORY') private nameRepository: typeof applicationName){}
+  async create(createNameDto: any) {
+    const currentNames = await this.findAll(createNameDto);
+    if(currentNames.length > 0) return;
+    return this.nameRepository.create(createNameDto);
   }
 
-  findAll() {
-    return `This action returns all names`;
+  async findAll(where?: any) {
+    return this.nameRepository.findAll(where ?? {});
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return `This action returns a #${id} name`;
   }
 
-  update(id: number, updateNameDto: UpdateNameDto) {
+  async update(id: number, updateNameDto: UpdateNameDto) {
     return `This action updates a #${id} name with ${updateNameDto}`;
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} name`;
   }
 }

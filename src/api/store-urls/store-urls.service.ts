@@ -6,23 +6,25 @@ import { applicationStore } from './entities/store-url.entity';
 @Injectable()
 export class StoreUrlsService {
   constructor(@Inject('STORE_REPOSITORY') private storeRepository: typeof applicationStore){}
-  create(createStoreUrlDto: CreateStoreUrlDto) {
-    return this.storeRepository.create();
+  async create(createStoreUrlDto: any) {
+    const currentStores = await this.findAll(createStoreUrlDto);
+    if(currentStores.length > 0) return;
+    return this.storeRepository.create(createStoreUrlDto);
   }
 
-  findAll() {
+  async findAll(where?: any) {
+    return this.storeRepository.findAll(where ?? {});
+  }
+
+  async findOne(id: number) {
     return this.storeRepository.findAll();
   }
 
-  findOne(id: number) {
-    return this.storeRepository.findAll();
-  }
-
-  update(id: number, updateStoreUrlDto: UpdateStoreUrlDto) {
+  async update(id: number, updateStoreUrlDto: UpdateStoreUrlDto) {
     return `This action updates a #${id} storeUrl ${updateStoreUrlDto}`;
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} storeUrl`;
   }
 }

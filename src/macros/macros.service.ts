@@ -7,23 +7,30 @@ import { processFileData, saveRecords } from 'src/utils';
 
 @Injectable()
 export class MacrosService {
-    constructor(private bundles: BundleStoreNamesService, 
+    constructor(private bundleStoreNameService: BundleStoreNamesService, 
                 private operatingSystemsService: OperatingSystemsService,
+                private storeNameService: StoreNamesService,
+                private bundleService: BundlesService,
+                private storeService: StoreUrlsService,
+                private nameService: NamesService,
                 private userAgents: UserAgentsService,
                 private devices: DevicesService){}
 
     async getMacros() {
-        return this.bundles.findAll();
+        return this.bundleStoreNameService.findAll();
     }
 
     async createFromFormData(macros: CreateMacroDto): Promise<any>{
-        this.operatingSystemsService.create(macros)
+        // this.operatingSystemsService.create(macros.os)
+        return;
     }
-
+    //TODO: SET RELATIONSHIPS BTWN TABLES
     async createFromFileData(fileData: any): Promise<any>{
         const records = await processFileData(fileData.data);
         await saveRecords(records, (rows: any)=>{
-            //Saves Operating system so far, needs to save missing data... rows.bundles.map(...)
+            rows.bundles.map((row: any)=> {this.bundleService.createBundle({ bundle: row })})
+            rows.names.map((row: any) => {this.nameService.create({ name: row})})
+            rows.stores.map((row: any) => {this.storeService.create({ store: row})})
             rows.os.map((os: string) => this.operatingSystemsService.create({os: os}))
         });
     }
