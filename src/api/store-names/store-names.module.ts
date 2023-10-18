@@ -8,5 +8,6 @@ import { StoreNames } from './entities/store-name.entity';
   imports:[DatabaseModule],
   controllers: [StoreNamesController],
   providers: [StoreNamesService, {provide: 'SN_REPOSITORY', useValue: StoreNames}],
+  exports: [StoreNamesService]
 })
 export class StoreNamesModule {}
