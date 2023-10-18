@@ -114,11 +114,12 @@ export const saveRecords = async (rows: Array<any>,callback: Function) => {
 			let n = row[1]
 			let b = row[0]
 			data.os.push({os:o})
-			//data.stores.push({ store: encodeURIComponent(s), os: o })
-			//data.names.push({ name: encodeURIComponent(n), store: encodeURIComponent(s) })
-			data.bundles.push({ bundle: b, name: encodeURIComponent(n), store: encodeURIComponent(s) })
+			data.stores.push({ store: encodeURIComponent(s), os: o })
+			data.names.push({ name: encodeURIComponent(n), store: encodeURIComponent(s) })
+			data.bundle_list.push({ bundle: b, name: encodeURIComponent(n), store: encodeURIComponent(s) })
 		})
 		data.os = withoutDuplicates(data.os, 'os')
+		data.bundles= withoutDuplicates(data.bundle_list, 'bundle')
 	}
 	const getDeviceRowData = (rows: Array<any>, data: any) => {
 		return rows.map(async (row:Array<any>) => {
@@ -138,7 +139,8 @@ export const saveRecords = async (rows: Array<any>,callback: Function) => {
 			os: [],
 			uas : [],
 			uips: [],
-			deviceids:[]
+			deviceids:[],
+			bundle_list:[]
 		}
 		if(rows[0].length == 4){getRowData(rows, data)}else{getDeviceRowData(rows, data)}
 		callback(data)
