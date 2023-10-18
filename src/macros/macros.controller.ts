@@ -4,7 +4,7 @@ import { MacrosService } from './macros.service';
 import { CreateMacroDto } from './dto/create-macro.dto';
 import Papa from 'papaparse';
 
-@Controller()
+@Controller('bundles')
 export class MacrosController {
     constructor(private macrosService: MacrosService){}
 
@@ -16,8 +16,9 @@ export class MacrosController {
     @Post('upload-new-macros-file')
     @UseInterceptors(FileInterceptor('csvfile'))
     async createFromFile(@UploadedFile() file: Express.Multer.File){
-        if(!file) throw new HttpException('File not found', HttpStatus.BAD_REQUEST);
+        if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
         const fileDataAsJSON = Papa.parse((file.buffer).toString());
+        if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
         return this.macrosService.createFromFileData(fileDataAsJSON);
     }
     @Post('create-new-macro')
