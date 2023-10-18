@@ -3,11 +3,12 @@ import {BundleStoreNamesService, BundlesService, NamesService, DevicesService, S
 import { OperatingSystemsService } from 'src/api/operating-systems/operating-systems.service';
 import { CreateMacroDto } from './dto/create-macro.dto';
 import { CreateBundleStoreNameDto } from 'src/api/bundle-store-names/dto/create-bundle-store-name.dto';
+import { processFileData, saveRecords } from 'src/utils';
 
 @Injectable()
 export class MacrosService {
     constructor(private bundles: BundleStoreNamesService, 
-                private operatingSystems: OperatingSystemsService,
+                private operatingSystemsService: OperatingSystemsService,
                 private userAgents: UserAgentsService,
                 private devices: DevicesService){}
 
@@ -16,16 +17,15 @@ export class MacrosService {
     }
 
     async createFromFormData(macros: CreateMacroDto): Promise<any>{
-        this.operatingSystems.create(macros)
+        this.operatingSystemsService.create(macros)
     }
 
     async createFromFileData(fileData: any): Promise<any>{
-        const os = {os: fileData.data[0][3]}
-        const bundle = fileData.data[0][0]
-        const name = fileData.data[0][1]
-        const store = fileData.data[0][2]
-        console.log({bundle, name, store})
-        await this.operatingSystems.create(os);
+        const records = await processFileData(fileData.data);
+        await saveRecords(records, (rows: any)=>{
+            //Saves Operating system so far, needs to save missing data... rows.bundles.map(...)
+            rows.os.map((os: string) => this.operatingSystemsService.create({os: os}))
+        });
     }
 
     updateMacros(macros: any, options: any){
