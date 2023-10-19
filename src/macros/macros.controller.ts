@@ -10,16 +10,26 @@ export class MacrosController {
 
     @Get()
     getAllMacros(){
+        //Get every bundle combination from bundleStoreName Table
         return this.macrosService.getMacros();
     }
 
-    @Post('upload-new-macros-file')
-    @UseInterceptors(FileInterceptor('csvfile'))
+    @Post('upload/bundles')
+    @UseInterceptors(FileInterceptor('file'))
     async createFromFile(@UploadedFile() file: Express.Multer.File){
         if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
         const fileDataAsJSON = Papa.parse((file.buffer).toString());
         if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
         return this.macrosService.createFromFileData(fileDataAsJSON);
+    }
+
+    @Post('upload/devices')
+    @UseInterceptors(FileInterceptor('file'))
+    async createDevicesFromFile(@UploadedFile() file: Express.Multer.File){
+        if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
+        const fileDataAsJSON = Papa.parse((file.buffer).toString());
+        if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
+        return this.macrosService.createDevicesFromFileData(fileDataAsJSON);
     }
     @Post('create-new-macro')
     async createFromFormData(@Body() data: CreateMacroDto): Promise<any>{
