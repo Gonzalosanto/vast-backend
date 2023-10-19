@@ -88,49 +88,7 @@ export const processFileData = async (fileData: Array<object>) => {
     return records;
 }
 //Records from bundles. Take in account the device data case.
-export const saveRecords = async (rows: Array<any>,callback: Function) => {
-	const withoutDuplicates = (objects: Array<object>, key: string) : any => {
-		let set = new Set()
-		Object.values(objects).map(v => {set.add(v[key])});
-		return Array.from(set);
-	}
-	const deleteDuplicates = (objects: Array<object>) : Array<any> => {
-		const values = []
-		let newArray = []
-		const keys = Object.keys(objects[0])
-		for (let i = 0; i < objects.length; i++) {
-			const element = objects[i];
-			if(!values.includes(element[keys[0]])) {
-				values.push(element[keys[0]])
-				newArray.push(element)
-			}
-		}
-		return newArray;
-	}
-	const getRowData = (rows: Array<any>, data: any) => {
-		rows.map((row) => {
-			let o = row[3]
-			let s = row[2]
-			let n = row[1]
-			let b = row[0]
-			data.os.push({os:o})
-			data.stores.push({ store: encodeURIComponent(s), os: o })
-			data.names.push({ name: encodeURIComponent(n), store: encodeURIComponent(s) })
-			data.bundle_list.push({ bundle: b, name: encodeURIComponent(n), store: encodeURIComponent(s) })
-		})
-		data.os = withoutDuplicates(data.os, 'os')
-		data.bundles= withoutDuplicates(data.bundle_list, 'bundle')
-	}
-	const getDeviceRowData = (rows: Array<any>, data: any) => {
-		return rows.map(async (row:Array<any>) => {
-			let did = row[0]
-			let ua = row[1]
-			let ip = row[2]
-			data.uas.push({ua:ua})
-			data.uips.push({ uip: ip})
-			data.deviceids.push({ deviceid: encodeURIComponent(did) })
-		})
-	}
+export const saveRecords = async (rows: Array<any>, callback: Function, rowDataGetter: Function) => {
 	try {
 		let data = {
 			bundles: [],
@@ -142,9 +100,47 @@ export const saveRecords = async (rows: Array<any>,callback: Function) => {
 			deviceids:[],
 			bundle_list:[]
 		}
-		if(rows[0].length == 4){getRowData(rows, data)}else{getDeviceRowData(rows, data)}
+		rowDataGetter(rows, data)
 		callback(data)
 	} catch (error) {
 		console.log(error)
 	}
+}
+
+const withoutDuplicates = (objects: Array<object>, key: string) : any => {
+	let set = new Set()
+	Object.values(objects).map(v => {set.add(v[key])});
+	return Array.from(set);
+}
+
+export const getRowData = (rows: Array<any>, data: any) => {
+	rows.map((row) => {
+		let o = row[3]
+		let s = row[2]
+		let n = row[1]
+		let b = row[0]
+		data.os.push({os:o})
+		data.stores.push({ store: encodeURIComponent(s)})
+		data.names.push({ name: encodeURIComponent(n)})
+		data.bundles.push({bundle: b})
+		data.bundle_list.push({ bundle: b, name: encodeURIComponent(n), store: encodeURIComponent(s), os: o })
+	})
+	data.os = withoutDuplicates(data.os, 'os')
+	data.bundles= withoutDuplicates(data.bundles, 'bundle')
+	data.names = withoutDuplicates(data.names, 'name')
+	data.store = withoutDuplicates(data.stores, 'store')
+}
+
+export const getDeviceRowData = (rows: Array<any>, data: any) => {
+	rows.map(async (row:Array<any>) => {
+		let did = row[0]
+		let ua = row[1]
+		let ip = row[2]
+		data.uas.push({ua:encodeURIComponent(ua)})
+		data.uips.push({ uip: ip })
+		data.deviceids.push({ deviceid: encodeURIComponent(did) })
+	})
+	data.uas = withoutDuplicates(data.uas, 'ua')
+	data.uips = withoutDuplicates(data.uips, 'uip')
+	data.deviceids = withoutDuplicates(data.deviceids, 'deviceid')
 }
