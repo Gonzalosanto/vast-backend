@@ -8,5 +8,6 @@ import { DatabaseModule } from 'src/core/database.module';
   imports: [DatabaseModule],
   controllers: [UipsController],
   providers: [UipsService, {provide: 'UIP_REPOSITORY', useValue: Uip}],
+  exports: [UipsService]
 })
 export class UipsModule {}
