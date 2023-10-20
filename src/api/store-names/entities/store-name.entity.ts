@@ -5,6 +5,7 @@ import {
   BelongsToMany,
   ForeignKey,
   PrimaryKey,
+  AutoIncrement,
 } from 'sequelize-typescript';
 import { applicationStore } from '../../store-urls/entities/store-url.entity';
 import { applicationName } from '../../names/entities/name.entity';
@@ -13,6 +14,7 @@ import { BundleStoreName } from '../../bundle-store-names/entities/bundle-store-
 @Table
 export class StoreNames extends Model {
   @PrimaryKey
+  @AutoIncrement
   @Column
   sn_id:number;
 

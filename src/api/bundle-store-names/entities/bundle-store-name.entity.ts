@@ -5,12 +5,14 @@ import {
   ForeignKey,
   BelongsTo,
   PrimaryKey,
+  AutoIncrement,
 } from 'sequelize-typescript';
 import { StoreNames } from '../../store-names/entities/store-name.entity';
 import { applicationBundle } from '../../bundles/entities/bundles.entity';
 @Table
 export class BundleStoreName extends Model {
   @PrimaryKey
+  @AutoIncrement
   @Column
   bsn_id: number
 
