@@ -6,6 +6,7 @@ import {
   BelongsTo,
   PrimaryKey,
   AutoIncrement,
+  Unique,
 } from 'sequelize-typescript';
 import { StoreNames } from '../../store-names/entities/store-name.entity';
 import { applicationBundle } from '../../bundles/entities/bundles.entity';
@@ -17,6 +18,7 @@ export class BundleStoreName extends Model {
   bsn_id: number
 
   @ForeignKey(() => StoreNames)
+  @Unique(false)
   @Column
   storeNameId: number;
 
@@ -24,6 +26,7 @@ export class BundleStoreName extends Model {
   storeName: StoreNames;
 
   @ForeignKey(() => applicationBundle)
+  @Unique(false)
   @Column
   applicationBundleId: number;
 

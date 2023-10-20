@@ -6,6 +6,7 @@ import {
   ForeignKey,
   PrimaryKey,
   AutoIncrement,
+  Unique,
 } from 'sequelize-typescript';
 import { applicationStore } from '../../store-urls/entities/store-url.entity';
 import { applicationName } from '../../names/entities/name.entity';
@@ -19,10 +20,12 @@ export class StoreNames extends Model {
   sn_id:number;
 
   @ForeignKey(() => applicationStore)
+  @Unique(false)
   @Column
   applicationStoreId: number;
 
   @ForeignKey(() => applicationName)
+  @Unique(false)
   @Column
   applicationNameId: number;
 
