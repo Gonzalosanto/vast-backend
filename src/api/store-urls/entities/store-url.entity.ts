@@ -4,16 +4,17 @@ import {
   Model,
   BelongsTo,
   ForeignKey,
+  DataType,
 } from 'sequelize-typescript';
 import { OperatingSystem } from '../../operating-systems/entities/operating-system.entity';
 @Table
 export class applicationStore extends Model {
   @Column
-  store: string;
+  declare store: string;
 
   @ForeignKey(() => OperatingSystem)
   @Column
-  operatingSystemId: number;
+  declare operatingSystemId: number;
 
   @BelongsTo(() => OperatingSystem)
   operatingSystem: OperatingSystem;

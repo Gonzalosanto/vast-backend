@@ -4,7 +4,7 @@ import { StoreNames } from '../../store-names/entities/store-name.entity';
 @Table
 export class applicationName extends Model {
   @Column
-  name: string;
+  declare name: string;
 
   @BelongsToMany(() => applicationStore, () => StoreNames)
   stores: applicationStore[];
