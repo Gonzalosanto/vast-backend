@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Controller, Get, Post, Put, Delete, Body, UseInterceptors, UploadedFile } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { MacrosService } from './macros.service';
-import { CreateMacroDto } from './dto/create-macro.dto';
 import Papa from 'papaparse';
 
 @Controller('bundles')
@@ -10,11 +9,10 @@ export class MacrosController {
 
     @Get()
     getAllMacros(){
-        //Get every bundle combination from bundleStoreName Table
         return this.macrosService.getMacros();
     }
 
-    @Post('upload/bundles')
+    @Post('load-bundles')
     @UseInterceptors(FileInterceptor('file'))
     async createFromFile(@UploadedFile() file: Express.Multer.File){
         if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
@@ -23,7 +21,7 @@ export class MacrosController {
         return this.macrosService.createFromFileData(fileDataAsJSON);
     }
 
-    @Post('upload/devices')
+    @Post('load-devices')
     @UseInterceptors(FileInterceptor('file'))
     async createDevicesFromFile(@UploadedFile() file: Express.Multer.File){
         if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
@@ -31,8 +29,8 @@ export class MacrosController {
         if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
         return this.macrosService.createDevicesFromFileData(fileDataAsJSON);
     }
-    @Post('create-new-macro')
-    async createFromFormData(@Body() data: CreateMacroDto): Promise<any>{
+    @Post()
+    async createFromFormData(@Body() data: any): Promise<any>{
         return this.macrosService.createFromFormData(data)
     }
 
