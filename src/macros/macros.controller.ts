@@ -4,12 +4,12 @@ import { MacrosService } from './macros.service';
 import { CreateMacroDto } from './dto/create-macro.dto';
 import Papa from 'papaparse';
 
-@Controller()
+@Controller('macros')
 export class MacrosController {
     constructor(private macrosService: MacrosService){}
 
     @Get()
-    getAllMacros(){
+    async getAllMacros(){
         return this.macrosService.getMacros();
     }
 
