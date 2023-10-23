@@ -1,5 +1,6 @@
 import { Table, Column, Model, HasMany } from 'sequelize-typescript';
 import { applicationStore } from '../../store-urls/entities/store-url.entity';
+import { UserAgent } from 'src/api/user-agents/entities/user-agent.entity';
 @Table
 export class OperatingSystem extends Model {
   @Column({allowNull: false})
@@ -7,4 +8,7 @@ export class OperatingSystem extends Model {
 
   @HasMany(() => applicationStore)
   declare store: applicationStore;
+
+  @HasMany(() => UserAgent)
+  userAgent: UserAgent;
 }

@@ -1,4 +1,4 @@
-import { Table, Column, Model, BelongsToMany } from 'sequelize-typescript';
+import { Table, Column, Model, BelongsToMany, HasMany } from 'sequelize-typescript';
 import { BundleStoreName } from '../../bundle-store-names/entities/bundle-store-name.entity';
 import { StoreNames } from '../../store-names/entities/store-name.entity';
 
@@ -9,4 +9,7 @@ export class applicationBundle extends Model {
 
   @BelongsToMany(() => StoreNames, () => BundleStoreName)
   bundleStoreName: BundleStoreName[];
+
+  @HasMany(() => BundleStoreName)
+  bundleStoreNames: BundleStoreName[];
 }

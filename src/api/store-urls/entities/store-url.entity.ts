@@ -4,17 +4,28 @@ import {
   Model,
   BelongsTo,
   ForeignKey,
+  BelongsToMany,
+  HasMany,
 } from 'sequelize-typescript';
 import { OperatingSystem } from '../../operating-systems/entities/operating-system.entity';
+import { applicationName } from 'src/api/names/entities/name.entity';
+import { StoreNames } from 'src/api/store-names/entities/store-name.entity';
 @Table
 export class applicationStore extends Model {
   @Column
-  store: string;
+  declare store: string;
 
   @ForeignKey(() => OperatingSystem)
   @Column
-  operatingSystemId: number;
+  declare operatingSystemId: number;
 
   @BelongsTo(() => OperatingSystem)
   operatingSystem: OperatingSystem;
+  
+    //No se necesita
+  // @BelongsToMany(() => applicationName, () => StoreNames)
+  // storeName: StoreNames[];
+
+  @HasMany(() => StoreNames)
+  storeNames: StoreNames[];
 }
