@@ -13,21 +13,18 @@ import { applicationBundle } from '../../bundles/entities/bundles.entity';
 @Table
 export class BundleStoreName extends Model {
   @PrimaryKey
-  @AutoIncrement
-  @Column
+  @Column({autoIncrement: true, primaryKey: true})
   bsn_id: number
 
   @ForeignKey(() => StoreNames)
-  @Unique(false)
-  @Column
+  @Column({unique: false})
   storeNameId: number;
 
   @BelongsTo(() => StoreNames)
   storeName: StoreNames;
 
   @ForeignKey(() => applicationBundle)
-  @Unique(false)
-  @Column
+  @Column({unique: false})
   applicationBundleId: number;
 
   @BelongsTo(() => applicationBundle)

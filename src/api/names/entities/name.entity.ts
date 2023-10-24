@@ -1,4 +1,4 @@
-import { Table, Column, Model, BelongsToMany } from 'sequelize-typescript';
+import { Table, Column, Model, BelongsToMany, HasMany } from 'sequelize-typescript';
 import { applicationStore } from '../../store-urls/entities/store-url.entity';
 import { StoreNames } from '../../store-names/entities/store-name.entity';
 @Table
@@ -8,4 +8,7 @@ export class applicationName extends Model {
 
   @BelongsToMany(() => applicationStore, () => StoreNames)
   stores: applicationStore[];
+
+  @HasMany(() => StoreNames)
+  storeNames: StoreNames[];
 }
