@@ -7,8 +7,8 @@ import { applicationName } from './entities/name.entity';
 export class NamesService {
   constructor(@Inject('NAME_REPOSITORY') private nameRepository: typeof applicationName){}
   async create(createNameDto: any) {
-    const currentNames = await this.findBy(createNameDto);
-    if(currentNames.length > 0) return;
+    const currentNames = await this.findBy(createNameDto, {});
+    if(currentNames.length > 0) return currentNames;
     return this.nameRepository.create(createNameDto);
   }
 
@@ -16,8 +16,8 @@ export class NamesService {
     return this.nameRepository.findAll();
   }
 
-  async findBy(lookup: any){
-    return this.nameRepository.findAll({where: lookup})
+  async findBy(lookup: any, options?: any){
+    return this.nameRepository.findAll({where: lookup, ...options})
   }
   async findOne(id: number) {
     return `This action returns a #${id} name`;
