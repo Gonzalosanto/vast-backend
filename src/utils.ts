@@ -102,6 +102,7 @@ export const saveRecords = async (rows: Array<any>, callback: Function, rowDataG
 		}
 		rowDataGetter(rows, data)
 		callback(data)
+		return data;
 	} catch (error) {
 		console.log(error)
 	}
@@ -128,7 +129,7 @@ export const getRowData = (rows: Array<any>, data: any) => {
 	data.os = withoutDuplicates(data.os, 'os')
 	data.bundles= withoutDuplicates(data.bundles, 'bundle')
 	data.names = withoutDuplicates(data.names, 'name')
-	data.store = withoutDuplicates(data.stores, 'store')
+	data.stores = withoutDuplicates(data.stores, 'store')
 }
 
 export const getDeviceRowData = (rows: Array<any>, data: any) => {
