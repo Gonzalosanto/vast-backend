@@ -12,7 +12,6 @@ export class MacrosService {
     async getMacros() {
         return this.bundleStoreNameService.findAll();
     }
-
     //TODO: Implement creation from form data.
     async createFromFormData(macros: any): Promise<any>{
         // this.operatingSystemsService.create(macros.os)
@@ -26,7 +25,6 @@ export class MacrosService {
             })
         }, getRowData);
     }
-
     async createDevicesFromFileData(fileData: any): Promise<any>{
         const records = await processFileData(fileData.data);
         await saveRecords(records, (rows: any)=>{
@@ -38,8 +36,7 @@ export class MacrosService {
     updateMacros(macros: any, options: any){
         return;
     }
-
-    deleteMacros(options: any){
-        return;
+    deleteMacros(options: any) {
+      return;
     }
 }

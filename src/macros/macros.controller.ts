@@ -3,12 +3,12 @@ import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { MacrosService } from './macros.service';
 import Papa from 'papaparse';
 
-@Controller('bundles')
+@Controller('macros')
 export class MacrosController {
     constructor(private macrosService: MacrosService){}
 
     @Get()
-    getAllMacros(){
+    async getAllMacros(){
         return this.macrosService.getMacros();
     }
 

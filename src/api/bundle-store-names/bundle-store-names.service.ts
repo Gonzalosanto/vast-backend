@@ -39,7 +39,6 @@ export class BundleStoreNamesService {
   
       const storeNameInstance = await this.storeNameService.create({applicationNameId: nameInstance, applicationStoreId: storeInstance});
       const bsn_intances = await this.create({storeNameId: storeNameInstance[0].dataValues.sn_id,applicationBundleId: bundleInstance[0].dataValues.id})
-      console.log(bsn_intances)
     } catch (error) {
       console.log(error)
     }
