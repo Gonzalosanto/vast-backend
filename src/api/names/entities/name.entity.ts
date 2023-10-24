@@ -6,9 +6,8 @@ export class applicationName extends Model {
   @Column
   declare name: string;
 
-  //No se necesita
-  // @BelongsToMany(() => applicationStore, () => StoreNames)
-  // stores: applicationStore[];
+  @BelongsToMany(() => applicationStore, () => StoreNames)
+  stores: applicationStore[];
 
   @HasMany(() => StoreNames)
   storeNames: StoreNames[];

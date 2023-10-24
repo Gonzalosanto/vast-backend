@@ -5,10 +5,7 @@ import {
   BelongsToMany,
   ForeignKey,
   PrimaryKey,
-  AutoIncrement,
-  Unique,
   BelongsTo,
-  HasMany,
 } from 'sequelize-typescript';
 import { applicationStore } from '../../store-urls/entities/store-url.entity';
 import { applicationName } from '../../names/entities/name.entity';
@@ -17,29 +14,30 @@ import { BundleStoreName } from '../../bundle-store-names/entities/bundle-store-
 @Table
 export class StoreNames extends Model {
   @PrimaryKey
-  @AutoIncrement
-  @Column
-  sn_id: number;
+  @Column({primaryKey: true, autoIncrement: true})
+  declare sn_id:number;
 
   @ForeignKey(() => applicationStore)
-  @Unique(false)
-  @Column
-  applicationStoreId: number;
+  @Column({unique: false})
+  declare applicationStoreId: number;
+
+  @BelongsTo(()=>applicationStore)
+  applicationStore: applicationStore;
 
   @BelongsTo(() => applicationStore)
   applicationStore: applicationStore;
 
   @ForeignKey(() => applicationName)
-  @Unique(false)
-  @Column
-  applicationNameId: number;
+  @Column({unique:false})
+  declare applicationNameId: number;
+
+  @BelongsTo(() => applicationName)
+  applicationName: applicationName;
 
   @BelongsTo(() => applicationName)
   applicationName: applicationName[];
 
   @BelongsToMany(() => applicationBundle, () => BundleStoreName)
   bundleStoreName: BundleStoreName[];
-
-  @HasMany(() => BundleStoreName)
-  bundleStoreNames: BundleStoreName;
 }
+

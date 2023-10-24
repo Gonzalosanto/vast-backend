@@ -1,28 +1,34 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { CreateStoreUrlDto } from './dto/create-store-url.dto';
 import { UpdateStoreUrlDto } from './dto/update-store-url.dto';
 import { applicationStore } from './entities/store-url.entity';
+import { WhereOptions } from 'sequelize';
 
 @Injectable()
 export class StoreUrlsService {
   constructor(@Inject('STORE_REPOSITORY') private storeRepository: typeof applicationStore){}
-  create(createStoreUrlDto: CreateStoreUrlDto) {
-    return this.storeRepository.create();
+  async create(createStoreUrlDto: any) {
+    const currentStores = await this.findBy(createStoreUrlDto);
+    if(currentStores.length > 0) return currentStores;
+    return this.storeRepository.create(createStoreUrlDto);
   }
 
-  findAll() {
+  async findBy(lookup: WhereOptions, options?: any){
+    return this.storeRepository.findAll({where: lookup, ...options})
+  }
+
+  async findAll() {
     return this.storeRepository.findAll();
   }
 
-  findOne(id: number) {
-    return this.storeRepository.findAll();
+  async findOne(id: number) {
+    return this.storeRepository.findOne({where : {id: id}});
   }
 
-  update(id: number, updateStoreUrlDto: UpdateStoreUrlDto) {
-    return `This action updates a #${id} storeUrl ${updateStoreUrlDto}`;
+  async update(field: string, searchValue: any, valuesToUpdate: any) {
+    return this.storeRepository.update(valuesToUpdate, {where: {[field] : searchValue}});
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} storeUrl`;
   }
 }

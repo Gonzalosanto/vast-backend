@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Controller, Get, Post, Put, Delete, Body, UseInterceptors, UploadedFile } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { MacrosService } from './macros.service';
-import { CreateMacroDto } from './dto/create-macro.dto';
 import Papa from 'papaparse';
 
 @Controller('macros')
@@ -13,15 +12,25 @@ export class MacrosController {
         return this.macrosService.getMacros();
     }
 
-    @Post('upload-new-macros-file')
-    @UseInterceptors(FileInterceptor('csvfile'))
+    @Post('load-bundles')
+    @UseInterceptors(FileInterceptor('file'))
     async createFromFile(@UploadedFile() file: Express.Multer.File){
-        if(!file) throw new HttpException('File not found', HttpStatus.BAD_REQUEST);
+        if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
         const fileDataAsJSON = Papa.parse((file.buffer).toString());
+        if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
         return this.macrosService.createFromFileData(fileDataAsJSON);
     }
-    @Post('create-new-macro')
-    async createFromFormData(@Body() data: CreateMacroDto): Promise<any>{
+
+    @Post('load-devices')
+    @UseInterceptors(FileInterceptor('file'))
+    async createDevicesFromFile(@UploadedFile() file: Express.Multer.File){
+        if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
+        const fileDataAsJSON = Papa.parse((file.buffer).toString());
+        if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
+        return this.macrosService.createDevicesFromFileData(fileDataAsJSON);
+    }
+    @Post()
+    async createFromFormData(@Body() data: any): Promise<any>{
         return this.macrosService.createFromFormData(data)
     }
 

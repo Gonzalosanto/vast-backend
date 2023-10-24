@@ -10,8 +10,14 @@ export class BundlesService {
     return this.bundleRepository.findAll();
   }
 
-  async createBundle(body: applicationBundle): Promise<any> {
-    return this.bundleRepository.create({ body });
+  async findBy(whereOptions: any, options: any): Promise<applicationBundle[]>{
+    return this.bundleRepository.findAll({where: whereOptions, ...options});
+  }
+
+  async createBundle(createBundleDto: any): Promise<applicationBundle[] | applicationBundle>  {
+    const currentBundles = await this.findBy(createBundleDto, {})
+    if(currentBundles.length > 0) return currentBundles;
+    return this.bundleRepository.create(createBundleDto);
   }
 
   async updateBundle(body: applicationBundle, options: any): Promise<any> {

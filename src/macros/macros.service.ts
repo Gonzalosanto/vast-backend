@@ -1,49 +1,42 @@
-import { Injectable } from '@nestjs/common';
-import {
-  BundleStoreNamesService,
-  BundlesService,
-  NamesService,
-  DevicesService,
-  StoreNamesService,
-  StoreUrlsService,
-  UipsService,
-  UserAgentsService,
-} from '../api/index';
-import { OperatingSystemsService } from 'src/api/operating-systems/operating-systems.service';
-import { CreateMacroDto } from './dto/create-macro.dto';
-import { CreateBundleStoreNameDto } from 'src/api/bundle-store-names/dto/create-bundle-store-name.dto';
+import {Injectable} from '@nestjs/common'
+import {BundleStoreNamesService, DevicesService, UipsService, UserAgentsService} from '../api/index';
+import { getDeviceRowData, getRowData, processFileData, saveRecords } from 'src/utils';
 
 @Injectable()
 export class MacrosService {
-  constructor(
-    private bundleStoreNamesService: BundleStoreNamesService,
-    private operatingSystems: OperatingSystemsService,
-    private userAgents: UserAgentsService,
-    private devices: DevicesService,
-  ) {}
+    constructor(private bundleStoreNameService: BundleStoreNamesService,
+                private userAgents: UserAgentsService,
+                private devices: DevicesService,
+                private userIps: UipsService){}
 
-  async getMacros(): Promise<any> {
-    return this.bundleStoreNamesService.findAll();
-  }
-
-  async createFromFormData(macros: CreateMacroDto): Promise<any> {
-    this.operatingSystems.create(macros);
-  }
-
-  async createFromFileData(fileData: any): Promise<any> {
-    const os = { os: fileData.data[0][3] };
-    const bundle = fileData.data[0][0];
-    const name = fileData.data[0][1];
-    const store = fileData.data[0][2];
-    console.log({ bundle, name, store });
-    await this.operatingSystems.create(os);
-  }
-
-  updateMacros(macros: any, options: any) {
-    return;
-  }
-
-  deleteMacros(options: any) {
-    return;
-  }
+    async getMacros() {
+        return this.bundleStoreNameService.findAll();
+    }
+    //TODO: Implement creation from form data.
+    async createFromFormData(macros: any): Promise<any>{
+        // this.operatingSystemsService.create(macros.os)
+        return;
+    }
+    async createFromFileData(fileData: any): Promise<any>{
+        const records = await processFileData(fileData.data);
+        await saveRecords(records, (rows: any)=>{
+            rows.bundle_list.map( async(bundle_row: any)=> {
+                await this.bundleStoreNameService.createWithRelationships(bundle_row);
+            })
+        }, getRowData);
+    }
+    async createDevicesFromFileData(fileData: any): Promise<any>{
+        const records = await processFileData(fileData.data);
+        await saveRecords(records, (rows: any)=>{
+            rows.uas.map((row: any)=> {this.userAgents.create({ ua: row })})
+            rows.uips.map((row: any)=> this.userIps.create({uip:row}))
+            rows.deviceids.map((row: any)=> this.devices.create({deviceid: row}))
+        }, getDeviceRowData);
+    }
+    updateMacros(macros: any, options: any){
+        return;
+    }
+    deleteMacros(options: any) {
+      return;
+    }
 }

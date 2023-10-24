@@ -1,17 +1,44 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateStoreNameDto } from './dto/create-store-name.dto';
 import { UpdateStoreNameDto } from './dto/update-store-name.dto';
 import { StoreNames } from './entities/store-name.entity';
+import { applicationStore } from '../store-urls/entities/store-url.entity';
+import { applicationName } from '../names/entities/name.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class StoreNamesService {
   constructor(@Inject('SN_REPOSITORY') private storeNameRepository: typeof StoreNames){}
-  create(createStoreNameDto: CreateStoreNameDto) {
-    return this.storeNameRepository.create({createStoreNameDto});
+  async create(storeNameObject: any) {
+    try {
+      const currentStoreNames = await this.findBy({
+        [Op.and] : [
+          {applicationNameId: storeNameObject.applicationNameId[0].dataValues.id}, 
+          {applicationStoreId: storeNameObject.applicationStoreId[0].dataValues.id}
+        ]
+      },{})
+      if(currentStoreNames.length > 0) return currentStoreNames;
+      const storeNameInstance = await this.storeNameRepository.create({
+        applicationNameId: storeNameObject.applicationNameId[0].dataValues.id, 
+        applicationStoreId: storeNameObject.applicationStoreId[0].dataValues.id
+      });
+      return storeNameInstance
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  findAll() {
-    return `This action returns all storeNames`;
+  async findAll() {
+    const res = await this.storeNameRepository.findAll({
+        include: [
+          {model:applicationStore, attributes: ['store']},
+          {model: applicationName, attributes:['name']}],
+          raw:true
+        });
+    return res;
+  }
+
+  async findBy(where: any, options: any){
+    return this.storeNameRepository.findAll({where: where, ...options})
   }
 
   findOne(id: number) {

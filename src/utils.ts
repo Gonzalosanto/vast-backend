@@ -1,18 +1,11 @@
-import fs from "fs"
-import path from "path";
-import Papa from 'papaparse'; 
-import {Keys, DEVICE_CATEGORY} from './constants'
-
-
+import {Keys, ADSERVER_URL, DEVICE_CATEGORY, VAST_VERSION, WIDTH, HEIGHT} from './constants'
 //----------------------------------------------------------------MACRO UTILS----------------------------------------------------------------------------------------//
 /*
  * This function builds an URL to request to adserver
  * argument macros receives variable data to conform a valid VAST TAG
  * argument id represents the AID 
 */
-const macro = {BASE_URL: 'adintelligent.com', WIDTH: '1920', HEIGHT: '1080', VAST_VERSION : '2.0'};
-const {BASE_URL, WIDTH, HEIGHT, VAST_VERSION } = macro
-const vastTagBuilder = (macros: any, id: string) => {return `${BASE_URL}/?width=${WIDTH}&height=${HEIGHT}&cb=&ua=${macros.ua}&uip=${macros.uip}&app_name=${macros.app_name}&app_bundle=${macros.app_bundle}&device_model=&device_make=&device_category=${DEVICE_CATEGORY.smart_tv}&app_store_url=${encodeURIComponent(macros.app_store_url)}&device_id=${macros.device_id || ''}&vast_version=${VAST_VERSION}&aid=${id}`;}
+const vastTagBuilder = (macros: any, id: string) => {return `${ADSERVER_URL}/?width=${WIDTH}&height=${HEIGHT}&cb=&ua=${macros.ua}&uip=${macros.uip}&app_name=${macros.app_name}&app_bundle=${macros.app_bundle}&device_model=&device_make=&device_category=${DEVICE_CATEGORY.smart_tv}&app_store_url=${encodeURIComponent(macros.app_store_url)}&device_id=${macros.device_id || ''}&vast_version=${VAST_VERSION}&aid=${id}`;}
 
 const processToRequest = (urls: Array<object>) : Array<string> => {
     let response = []
@@ -84,62 +77,18 @@ export const processData = async (data: Array<any>, callback: Function) => {
 }
 /**
  * 
- * @param {String} filename It's the relative path from root where it's stored the file to read. 
- * @param {String} delimiter Receives a character that represents the delimiter in CSV file (example: ',' or ';') 
- * @returns An Array where each row represents all the macros used to build final URI
+ * @param {Array<object>} fileData It's parsed data as JSON in uploaded file. 
+ * @returns An Array where each row represents all or some macros used to build final URI
  */
-export const processFile = async (filename: File) => {
-	// const parsedFile = Papa.parse(filename, {})
-    // const parser = fs.createReadStream(path.join(process.cwd(), filename)).pipe(
-    //     Papa.parse()
-    // );
-    // for await (const record of parser) {
-    //     records.push(record)
-    // }
-    return 'parsedFile';
+export const processFileData = async (fileData: Array<object>) => {
+	const records = []
+    for await (const record of fileData) {
+        records.push(record)
+    }
+    return records;
 }
-export const saveDataToDB = async (path, callback) => {
-	const records = await processFile(path);
-	//await saveRecords(records, callback);
-};
 //Records from bundles. Take in account the device data case.
-const saveRecords = async (rows: Array<any>,callback: Function) => {
-	const deleteDuplicates = (objects: Array<object>) : Array<any> => {
-		const values = []
-		let newArray = []
-		const keys = Object.keys(objects[0])
-		for (let i = 0; i < objects.length; i++) {
-			const element = objects[i];
-			if(!values.includes(element[keys[0]])) {
-				values.push(element[keys[0]])
-				newArray.push(element)
-			}
-		}
-		return newArray;
-	}
-	const getRowData = (rows: Array<any>, data: any) => {
-		rows.map(async (row) => {
-			let o = row[3]
-			let s = row[2]
-			let n = row[1]
-			let b = row[0]
-			data.os.push({os:o})
-			data.stores.push({ store: encodeURIComponent(s), os: o })
-			data.names.push({ name: encodeURIComponent(n), store: encodeURIComponent(s) })
-			data.bundles.push({ bundle: b, name: encodeURIComponent(n), store: encodeURIComponent(s) })
-		})
-		deleteDuplicates(data.stores)
-	}
-	const getDeviceRowData = (rows: Array<any>, data: any) => {
-		return rows.map(async (row:Array<any>) => {
-			let did = row[0]
-			let ua = row[1]
-			let ip = row[2]
-			data.uas.push({ua:ua})
-			data.uips.push({ uip: ip})
-			data.deviceids.push({ deviceid: encodeURIComponent(did) })
-		})
-	}
+export const saveRecords = async (rows: Array<any>, callback: Function, rowDataGetter: Function) => {
 	try {
 		let data = {
 			bundles: [],
@@ -148,11 +97,51 @@ const saveRecords = async (rows: Array<any>,callback: Function) => {
 			os: [],
 			uas : [],
 			uips: [],
-			deviceids:[]
+			deviceids:[],
+			bundle_list:[]
 		}
-		if(rows[0].length == 4){getRowData(rows, data)}else{getDeviceRowData(rows, data)}
+		rowDataGetter(rows, data)
 		callback(data)
+		return data;
 	} catch (error) {
 		console.log(error)
 	}
+}
+
+const withoutDuplicates = (objects: Array<object>, key: string) : any => {
+	let set = new Set()
+	Object.values(objects).map(v => {set.add(v[key])});
+	return Array.from(set);
+}
+
+export const getRowData = (rows: Array<any>, data: any) => {
+	rows.map((row) => {
+		let o = row[3]
+		let s = row[2]
+		let n = row[1]
+		let b = row[0]
+		data.os.push({os:o})
+		data.stores.push({ store: encodeURIComponent(s)})
+		data.names.push({ name: encodeURIComponent(n)})
+		data.bundles.push({bundle: b})
+		data.bundle_list.push({ bundle: b, name: encodeURIComponent(n), store: encodeURIComponent(s), os: o })
+	})
+	data.os = withoutDuplicates(data.os, 'os')
+	data.bundles= withoutDuplicates(data.bundles, 'bundle')
+	data.names = withoutDuplicates(data.names, 'name')
+	data.stores = withoutDuplicates(data.stores, 'store')
+}
+
+export const getDeviceRowData = (rows: Array<any>, data: any) => {
+	rows.map(async (row:Array<any>) => {
+		let did = row[0]
+		let ua = row[1]
+		let ip = row[2]
+		data.uas.push({ua:encodeURIComponent(ua)})
+		data.uips.push({ uip: ip })
+		data.deviceids.push({ deviceid: encodeURIComponent(did) })
+	})
+	data.uas = withoutDuplicates(data.uas, 'ua')
+	data.uips = withoutDuplicates(data.uips, 'uip')
+	data.deviceids = withoutDuplicates(data.deviceids, 'deviceid')
 }
