@@ -6,13 +6,19 @@ import { OperatingSystem } from './entities/operating-system.entity';
 
 @Injectable()
 export class OperatingSystemsService {
-  constructor(@Inject('OS') private operatingSystem: typeof OperatingSystem){}
+  constructor(@Inject('OS_REPOSITORY') private operatingSystem: typeof OperatingSystem){}
   async create(createOperatingSystemDto: any) {
+    const currentOperatingSystem = await this.findBy(createOperatingSystemDto)
+    if(currentOperatingSystem.length > 0) return currentOperatingSystem;
     return this.operatingSystem.create(createOperatingSystemDto);
   }
 
   async findAll() {
     return this.operatingSystem.findAll();
+  }
+
+  async findBy(where: any): Promise<any> {
+    return this.operatingSystem.findAll({where: where});
   }
 
   async findOne(id: number) {

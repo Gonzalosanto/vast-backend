@@ -7,9 +7,12 @@ import { DatabaseModule } from 'src/core/database.module';
   imports: [DatabaseModule],
   providers: [ OperatingSystemsService,
     {
-      provide: 'OS',
+      provide: 'OS_REPOSITORY',
       useValue: OperatingSystem,
   }],
-  exports: [OperatingSystemsService]
+  exports: [OperatingSystemsService, {
+    provide: 'OS_REPOSITORY',
+    useValue: OperatingSystem,
+}]
 })
 export class OperatingSystemsModule {}

@@ -21,11 +21,11 @@ export class applicationStore extends Model {
 
   @BelongsTo(() => OperatingSystem)
   operatingSystem: OperatingSystem;
-  
-    //No se necesita
-  // @BelongsToMany(() => applicationName, () => StoreNames)
-  // storeName: StoreNames[];
+
+  @BelongsToMany(() => applicationName, () => StoreNames)
+  storeName: StoreNames[];
 
   @HasMany(() => StoreNames)
   storeNames: StoreNames[];
+
 }

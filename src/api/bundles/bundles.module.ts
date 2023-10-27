@@ -8,5 +8,6 @@ import { DatabaseModule } from 'src/core/database.module';
   imports: [DatabaseModule],
   controllers: [BundlesController],
   providers: [BundlesService, ...bundlesProviders],
+  exports: [BundlesService]
 })
 export class BundleModule {}
