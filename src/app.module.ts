@@ -7,11 +7,12 @@ import { BundleModule } from './api/bundles/bundles.module';
 import { MacrosModule } from './macros/macros.module';
 import { ReportsService } from './api/reports/reports.service';
 import { ReportsModule } from './api/reports/reports.module';
+import { ReportsController} from './api/reports/reports.controller';
 
 
 @Module({
-  imports: [AuthModule, UsersModule, BundleModule, MacrosModule, ReportsModule],
-  controllers: [UsersController],
+  imports: [AuthModule, UsersModule, BundleModule, MacrosModule,ReportsModule],
+  controllers: [UsersController, ReportsController],
   providers: [UsersService, ReportsService],
 })
 export class AppModule {}
