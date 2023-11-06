@@ -7,38 +7,49 @@ import { Op } from 'sequelize';
 
 @Injectable()
 export class StoreNamesService {
-  constructor(@Inject('SN_REPOSITORY') private storeNameRepository: typeof StoreNames){}
+  constructor(
+    @Inject('SN_REPOSITORY') private storeNameRepository: typeof StoreNames,
+  ) {}
   async create(storeNameObject: any) {
     try {
-      const currentStoreNames = await this.findBy({
-        [Op.and] : [
-          {applicationNameId: storeNameObject.applicationNameId[0].dataValues.id}, 
-          {applicationStoreId: storeNameObject.applicationStoreId[0].dataValues.id}
-        ]
-      },{})
-      if(currentStoreNames.length > 0) return currentStoreNames;
+      const currentStoreNames = await this.findBy(
+        {
+          [Op.and]: [
+            {
+              applicationNameId:
+                storeNameObject.applicationNameId[0].dataValues.id,
+            },
+            {
+              applicationStoreId:
+                storeNameObject.applicationStoreId[0].dataValues.id,
+            },
+          ],
+        },
+        {},
+      );
+      if (currentStoreNames.length > 0) return currentStoreNames;
       const storeNameInstance = await this.storeNameRepository.create({
-        applicationNameId: storeNameObject.applicationNameId[0].dataValues.id, 
-        applicationStoreId: storeNameObject.applicationStoreId[0].dataValues.id
+        applicationNameId: storeNameObject.applicationNameId[0].dataValues.id,
+        applicationStoreId: storeNameObject.applicationStoreId[0].dataValues.id,
       });
-      return storeNameInstance
+      return storeNameInstance;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
   async findAll() {
-    const res = await this.storeNameRepository.findAll({
-        include: [
-          {model:applicationStore, attributes: ['store']},
-          {model: applicationName, attributes:['name']}],
-          raw:true
-        });
-    return res;
+    return this.storeNameRepository.findAll({
+      attributes:[],
+      include: [
+        { model: applicationStore, attributes: ['store'] },
+        { model: applicationName, attributes: ['name'] },
+      ],
+    });
   }
 
-  async findBy(where: any, options: any){
-    return this.storeNameRepository.findAll({where: where, ...options})
+  async findBy(where: any, options: any) {
+    return this.storeNameRepository.findAll({ where: where, ...options });
   }
 
   findOne(id: number) {
