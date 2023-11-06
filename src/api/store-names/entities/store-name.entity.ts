@@ -24,18 +24,12 @@ export class StoreNames extends Model {
   @BelongsTo(()=>applicationStore)
   applicationStore: applicationStore;
 
-  @BelongsTo(() => applicationStore)
-  applicationStore: applicationStore;
-
   @ForeignKey(() => applicationName)
   @Column({unique:false})
   declare applicationNameId: number;
 
   @BelongsTo(() => applicationName)
   applicationName: applicationName;
-
-  @BelongsTo(() => applicationName)
-  applicationName: applicationName[];
 
   @BelongsToMany(() => applicationBundle, () => BundleStoreName)
   bundleStoreName: BundleStoreName[];

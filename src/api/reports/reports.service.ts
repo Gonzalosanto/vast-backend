@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Report } from './entities/report.entity';
 import { SupplyAid } from '../aids/entities/supply-aid.entity';
 import { DemandAid } from '../aids/entities/demand-aid.entity';
+import { applicationBundle } from '../bundles/entities/bundles.entity';
+import { BundleStoreName } from '../bundle-store-names/entities/bundle-store-name.entity';
 
 @Injectable()
 export class ReportsService {
@@ -15,7 +17,30 @@ export class ReportsService {
   }
 
   async findAll(): Promise<Report[]> {
-    return this.reportRepository.findAll();
+    const results = await this.reportRepository.findAll({
+      attributes: ['id', 'requests', 'impressions'],
+      include: [
+        {
+          model: BundleStoreName,
+          attributes: ['applicationBundleId'],
+          include: [
+            {
+              model: applicationBundle,
+              attributes: ['bundle'],
+            },
+          ],
+        },
+        {
+          model: SupplyAid,
+          attributes: ['aid'],
+        },
+        {
+          model: DemandAid,
+          attributes: ['aid'],
+        },
+      ],
+    });
+    return results;
   }
 
   async findOne(where: any, options: any) {
