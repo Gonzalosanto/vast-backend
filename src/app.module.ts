@@ -8,10 +8,17 @@ import { MacrosModule } from './macros/macros.module';
 import { ReportsService } from './api/reports/reports.service';
 import { ReportsModule } from './api/reports/reports.module';
 import { ReportsController} from './api/reports/reports.controller';
-
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, BundleModule, MacrosModule,ReportsModule],
+  imports: [
+    AuthModule, 
+    UsersModule,
+    BundleModule,
+    MacrosModule,
+    ReportsModule,
+    KafkaModule
+  ],
   controllers: [UsersController, ReportsController],
   providers: [UsersService, ReportsService],
 })
