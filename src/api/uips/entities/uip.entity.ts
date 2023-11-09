@@ -2,7 +2,7 @@ import { Model, Table, Column, BelongsTo, ForeignKey } from 'sequelize-typescrip
 import { UserAgent } from 'src/api/user-agents/entities/user-agent.entity';
 @Table
 export class Uip extends Model {
-  @Column
+  @Column({unique: true})
   uip: string;
 
   @ForeignKey(() => UserAgent)

@@ -11,7 +11,7 @@ import { DeviceId } from 'src/api/devices/entities/device.entity';
 import { Uip } from 'src/api/uips/entities/uip.entity';
 @Table
 export class UserAgent extends Model {
-  @Column
+  @Column({unique:true})
   ua: string;
 
   @ForeignKey(() => OperatingSystem)

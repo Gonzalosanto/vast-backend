@@ -145,3 +145,11 @@ export const getDeviceRowData = (rows: Array<any>, data: any) => {
 	data.uips = withoutDuplicates(data.uips, 'uip')
 	data.deviceids = withoutDuplicates(data.deviceids, 'deviceid')
 }
+export const splitArrayIntoChunks = (array: Array<any>) => {
+	let arrayOfArrays = [];
+	let size = 50000;
+	for (let i=0; i<array.length; i+=size) {
+		arrayOfArrays.push(array.slice(i,i+size))
+	}
+	return arrayOfArrays;
+}

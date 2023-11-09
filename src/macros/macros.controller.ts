@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Controller, Get, Post, Put, Delete, Body, UseInterceptors, UploadedFile } from '@nestjs/common'
+import { HttpException, HttpCode, HttpStatus, Controller, Get, Post, Put, Delete, Body, UseInterceptors, UploadedFile } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { MacrosService } from './macros.service';
 import Papa from 'papaparse';
@@ -18,7 +18,8 @@ export class MacrosController {
         if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
         const fileDataAsJSON = Papa.parse((file.buffer).toString());
         if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
-        return this.macrosService.createFromFileData(fileDataAsJSON);
+        this.macrosService.createFromFileData(fileDataAsJSON)
+        return "Processing filedata of bundles...";
     }
 
     @Post('load-devices')
@@ -27,7 +28,8 @@ export class MacrosController {
         if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
         const fileDataAsJSON = Papa.parse((file.buffer).toString());
         if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
-        return this.macrosService.createDevicesFromFileData(fileDataAsJSON);
+        this.macrosService.createDevicesFromFileData(fileDataAsJSON);
+        return "Processing filedata of devices  ...";
     }
     @Post()
     async createFromFormData(@Body() data: any): Promise<any>{

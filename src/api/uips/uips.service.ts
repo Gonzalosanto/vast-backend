@@ -1,21 +1,30 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateUipDto } from './dto/create-uip.dto';
 import { UpdateUipDto } from './dto/update-uip.dto';
 import { Uip } from './entities/uip.entity';
 
 @Injectable()
 export class UipsService {
   constructor(@Inject('UIP_REPOSITORY') private uipRepository: typeof Uip){}
-  create(createUipDto: CreateUipDto) {
-    return this.uipRepository.create();
+  async create(userIPRecord: any) {
+    const currentUIP = await this.findBy(userIPRecord)
+    if(currentUIP.length > 0) return;
+    return this.uipRepository.create(userIPRecord);
   }
 
-  findAll() {
+  async bulkCreate(userIPRecords: Array<any>){
+    return this.uipRepository.bulkCreate(userIPRecords)
+  }
+
+  async findAll() {
     return this.uipRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} uip`;
+  async findBy(whereOptions: any, options?: object){
+    return this.uipRepository.findAll({where: whereOptions, ...options})
+  }
+
+  async findOne(id: number){
+    return this.uipRepository.findByPk(id);
   }
 
   update(id: number, updateUipDto: UpdateUipDto) {

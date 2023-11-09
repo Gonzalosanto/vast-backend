@@ -1,21 +1,30 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { DeviceId } from './entities/device.entity';
 
 @Injectable()
 export class DevicesService {
   constructor(@Inject('DEVICE_REPOSITORY') private devicesRepository: typeof DeviceId){}
-  create(createDeviceDto: CreateDeviceDto) {
-    return this.devicesRepository.create({createDeviceDto});
+  async create(deviceIdRecord: any) {
+    const currentDeviceIds = await this.findBy(deviceIdRecord)
+    if(currentDeviceIds.includes(deviceIdRecord)) return currentDeviceIds;
+    return this.devicesRepository.create({deviceIdRecord});
   }
 
-  findAll() {
+  async bulkCreate(userIPRecords: Array<any>){
+    return this.devicesRepository.bulkCreate(userIPRecords)
+  }
+
+  async findAll() {
     return this.devicesRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} device`;
+  async findBy(whereOptions: any, options?: object){
+    return this.devicesRepository.findAll({where: whereOptions, ...options})
+  }
+
+  async findOne(id: number){
+    return this.devicesRepository.findByPk(id);
   }
 
   update(id: number, updateDeviceDto: UpdateDeviceDto) {
