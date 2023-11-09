@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common'
 import {BundleStoreNamesService, DevicesService, UipsService, UserAgentsService} from '../api/index';
-import { getDeviceRowData, getRowData, processFileData, saveRecords } from 'src/utils';
+import { getDeviceRowData, getRowData, processFileData, saveRecords, splitArrayIntoChunks } from 'src/utils';
 
 @Injectable()
 export class MacrosService {
@@ -27,10 +27,17 @@ export class MacrosService {
     }
     async createDevicesFromFileData(fileData: any): Promise<any>{
         const records = await processFileData(fileData.data);
-        await saveRecords(records, (rows: any)=>{
-            rows.uas.map((row: any)=> {this.userAgents.create({ ua: row })})
-            rows.uips.map((row: any)=> this.userIps.create({uip:row}))
-            rows.deviceids.map((row: any)=> this.devices.create({deviceid: row}))
+        await saveRecords(records, async (rows: any)=>{
+            try {
+                rows.uas.map((row: any)=> {this.userAgents.create({ ua: row })})
+                let uipsWithoutRepeatedValues = [...new Set(rows.uips)].map((row: any) => {return {uip:row}})
+                splitArrayIntoChunks(uipsWithoutRepeatedValues).forEach(async chunk => await this.userIps.bulkCreate(chunk));
+                let devicesWithoutRepeatedValues = [...new Set(rows.deviceids)].map((row: any) => {return { deviceid: row }})
+                splitArrayIntoChunks(devicesWithoutRepeatedValues).forEach(async chunk => await this.devices.bulkCreate(chunk));
+            } catch (error) {
+                console.log(error)
+            }
+            
         }, getDeviceRowData);
     }
     updateMacros(macros: any, options: any){
