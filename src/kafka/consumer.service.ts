@@ -11,7 +11,12 @@ export class ConsumerService implements OnModuleInit {
     private consumer: any = this.kafkaClient.consumer({ groupId: 'main-group' });
 
     async onModuleInit() {
-        //await this.handleReportsSubscription()
+        try {
+            await this.handleReportsSubscription()
+        } catch (error) {
+            console.log('Could not establish any connection')
+        }
+
     }
 
     public getInstance(): ConsumerService {
