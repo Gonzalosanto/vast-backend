@@ -7,8 +7,8 @@ import {
   HasMany,
 } from 'sequelize-typescript';
 import { OperatingSystem } from '../../operating-systems/entities/operating-system.entity';
-import { DeviceId } from 'src/api/devices/entities/device.entity';
-import { Uip } from 'src/api/uips/entities/uip.entity';
+import { DeviceId } from 'src/main/devices/entities/device.entity';
+import { Uip } from 'src/main/uips/entities/uip.entity';
 @Table
 export class UserAgent extends Model {
   @Column({unique:true})

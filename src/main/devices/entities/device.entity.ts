@@ -1,5 +1,5 @@
 import { Table, Column, Model, BelongsTo, ForeignKey } from 'sequelize-typescript';
-import { UserAgent } from 'src/api/user-agents/entities/user-agent.entity';
+import { UserAgent } from 'src/main/user-agents/entities/user-agent.entity';
 @Table
 export class DeviceId extends Model {
   @Column({unique: true})

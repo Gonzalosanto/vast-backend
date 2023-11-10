@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Report } from './entities/report.entity';
-import { SupplyAid } from '../aids/entities/supply-aid.entity';
-import { DemandAid } from '../aids/entities/demand-aid.entity';
-import { applicationBundle } from '../bundles/entities/bundles.entity';
-import { BundleStoreName } from '../bundle-store-names/entities/bundle-store-name.entity';
+import { SupplyAid } from '../../main/aids/entities/supply-aid.entity';
+import { DemandAid } from '../../main/aids/entities/demand-aid.entity';
+import { applicationBundle } from '../../main/bundles/entities/bundles.entity';
+import { BundleStoreName } from '../../main/bundle-store-names/entities/bundle-store-name.entity';
 
 @Injectable()
 export class ReportsService {
