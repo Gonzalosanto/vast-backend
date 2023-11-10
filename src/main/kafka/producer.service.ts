@@ -12,7 +12,7 @@ export class ProducerService implements OnModuleInit {
     async onModuleInit() {
     }
 
-    async topicProducer(topic: string, messages: Array<object>) {
+    async topicProducer(topic: string, messages: Array<string>) {
         //Sends to specified topic a messages list...
         try {
             await this.start();
@@ -20,12 +20,6 @@ export class ProducerService implements OnModuleInit {
         } catch (error) {
             console.error(error)
         }
-    }
-
-    async handleMessagesToSend(messages: Array<object>) {
-        //Validates message format
-        //returns a formatted messages list 
-        return;
     }
 
     public getInstance(): ProducerService {
