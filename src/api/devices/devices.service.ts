@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { DeviceId } from './entities/device.entity';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class DevicesService {
@@ -25,6 +26,10 @@ export class DevicesService {
 
   async findOne(id: number){
     return this.devicesRepository.findByPk(id);
+  }
+
+  async getRandomDevices(limit: number){
+    return this.devicesRepository.findAll({attributes: ['deviceid'], order: Sequelize.literal('rand()'), limit: limit, raw: true})
   }
 
   update(id: number, updateDeviceDto: UpdateDeviceDto) {
