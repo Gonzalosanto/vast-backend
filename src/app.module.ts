@@ -8,6 +8,7 @@ import { ReportsService } from './api/reports/reports.service';
 import { ReportsModule } from './api/reports/reports.module';
 import { ReportsController} from './api/reports/reports.controller';
 import { KafkaModule } from './main/kafka/kafka.module';
+import { UrlProducerService } from './main/url-producer/url-producer.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { KafkaModule } from './main/kafka/kafka.module';
     KafkaModule
   ],
   controllers: [UsersController, ReportsController],
-  providers: [UsersService, ReportsService],
+  providers: [UsersService, ReportsService, UrlProducerService],
 })
 export class AppModule {}
