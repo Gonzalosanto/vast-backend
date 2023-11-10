@@ -1,4 +1,4 @@
-import {Keys, ADSERVER_URL, DEVICE_CATEGORY, VAST_VERSION, WIDTH, HEIGHT} from './constants'
+import {Keys, ADSERVER_URL, DEVICE_CATEGORY, VAST_VERSION, WIDTH, HEIGHT, AID} from './constants'
 //----------------------------------------------------------------MACRO UTILS----------------------------------------------------------------------------------------//
 /*
  * This function builds an URL to request to adserver
@@ -7,23 +7,14 @@ import {Keys, ADSERVER_URL, DEVICE_CATEGORY, VAST_VERSION, WIDTH, HEIGHT} from '
 */
 const vastTagBuilder = (macros: any, id: string | number) => {return `${ADSERVER_URL}/?width=${WIDTH}&height=${HEIGHT}&cb=&ua=${macros.ua}&uip=${macros.uip}&app_name=${macros.name}&app_bundle=${macros.bundle}&device_model=&device_make=&device_category=${DEVICE_CATEGORY.smart_tv}&app_store_url=${encodeURIComponent(macros.store)}&device_id=${macros.deviceid || ''}&vast_version=${VAST_VERSION}&aid=${id}`;}
 
-const processToRequest = (urls: Array<object>) : Array<string> => {
-    let response = []
-    for (let i = 0; i < urls.length; i++) {
-        response.push(vastTagBuilder(urls[i], process.env.AID))
-    }
-    return response;
-}
 /**
  * 
  * @param skip skip records in Database
  * @param limit records length from Database
  * @returns a list of URLs ready to be requested
  */
-export const urlsToRequest = async (skip: number, limit: number) => {
-    //const dataToBuild = await getDataToBuild(skip, limit) //retrieves data from DB //getDataTo... undefined function -> Implement service to retrieve required data to build URLS 
-    //const urls = await processToRequest(dataToBuild) //builds URLs from saved data
-    return 'urls' //return adserver-urls ready to be used
+export const urlsToRequest = async (macros: Array<object | string>) => {
+	return macros.map((macro:any) => {return vastTagBuilder(macro, AID)})
 }
 
 //----------------------------------------------------------------FILE PROCESSING UTILS----------------------------------------------------------------------------------------//
