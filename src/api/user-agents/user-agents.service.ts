@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UpdateUserAgentDto } from './dto/update-user-agent.dto';
 import { UserAgent } from './entities/user-agent.entity';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class UserAgentsService {
@@ -11,12 +12,16 @@ export class UserAgentsService {
     return this.userAgentRepository.create(userAgentRecord);
   }
 
-  async findAll() {
-    return this.userAgentRepository.findAll();
+  async findAll(options?: any) {
+    return this.userAgentRepository.findAll(options);
   }
 
   async findBy(whereOptions: any, options?: object){
     return this.userAgentRepository.findAll({where: whereOptions, ...options})
+  }
+
+  async getRandomUas(options?: any){
+    return this.userAgentRepository.findAll({attributes: ['ua'],order: Sequelize.literal('rand()'), ...options})
   }
 
   findOne(id: number) {

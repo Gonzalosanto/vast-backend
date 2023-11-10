@@ -10,9 +10,22 @@ export class MacrosService {
                 private userIps: UipsService){}
 
     async getMacros() {
-        return this.bundleStoreNameService.findAll();
+        const bundles = await this.bundleStoreNameService.findAll();
+        const deviceData = {
+            uas: await this.userAgents.getRandomUas({raw: true}), 
+            uips: await this.userIps.getRandomUips(10000), 
+            deviceids: await this.devices.getRandomDevices(10000)
+        }
+        const deviceDataMixed = deviceData.uas.map((ua, index)=> {
+            const uip = deviceData.uips[index].uip
+            const deviceid = deviceData.deviceids[index].deviceid
+            return {ua: ua.ua, uip, deviceid}})
+        const mixedBundlesXDeviceData = bundles.map((bundle, index) => {
+            return {...bundle, ...deviceDataMixed[index]}
+        })
+        return mixedBundlesXDeviceData 
     }
-    //TODO: Implement creation from form data.
+    //TODO: Implement creation from form data
     async createFromFormData(macros: any): Promise<any>{
         // this.operatingSystemsService.create(macros.os)
         return;
@@ -40,6 +53,15 @@ export class MacrosService {
             
         }, getDeviceRowData);
     }
+
+    async getRandomUips(){
+        return this.userIps.findAll();
+    }
+
+    async getRandomDevicesIds(){
+        return this.devices.findAll();
+    }
+
     updateMacros(macros: any, options: any){
         return;
     }

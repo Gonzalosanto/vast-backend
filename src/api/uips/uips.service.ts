@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UpdateUipDto } from './dto/update-uip.dto';
 import { Uip } from './entities/uip.entity';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class UipsService {
@@ -17,6 +18,10 @@ export class UipsService {
 
   async findAll() {
     return this.uipRepository.findAll();
+  }
+
+  async getRandomUips(limit: number, options?: any){
+    return this.uipRepository.findAll({attributes: ['uip'], order: Sequelize.literal('rand()'), limit: limit, raw: true})
   }
 
   async findBy(whereOptions: any, options?: object){
