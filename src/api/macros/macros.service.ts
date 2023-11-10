@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common'
-import {BundleStoreNamesService, DevicesService, UipsService, UserAgentsService} from '../api/index';
+import {BundleStoreNamesService, DevicesService, UipsService, UserAgentsService} from '../../main/index';
 import { getDeviceRowData, getRowData, processFileData, saveRecords, splitArrayIntoChunks } from 'src/utils';
 
 @Injectable()
