@@ -1,6 +1,6 @@
 import { Report } from './entities/report.entity';
-import { SupplyAid } from '../aids/entities/supply-aid.entity';
-import { DemandAid } from '../aids/entities/demand-aid.entity';
+import { SupplyAid } from '../../main/aids/entities/supply-aid.entity';
+import { DemandAid } from '../../main/aids/entities/demand-aid.entity';
 
 export const reportProvider = [
   {
