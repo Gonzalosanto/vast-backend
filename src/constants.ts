@@ -1,4 +1,4 @@
-export const AID = 835805
+export const AID = '858136'
 export const BUNDLE_REPOSITORY = 'bundle_repository';
 export const USER_REPOSITORY = 'user_repository';
 export const Keys = ['bundle', 'name', 'store', 'device_id', 'ua', 'uip']

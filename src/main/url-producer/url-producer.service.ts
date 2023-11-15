@@ -14,15 +14,18 @@ export class UrlProducerService implements OnModuleInit {
     async createURLs(){
         return urlsToRequest(await this.macrosService.getMacros());
     }
-    async formatURLsToMessages(): Promise<string[]>{
+    async formatURLsToMessages(): Promise<string[] | object[]>{
         return (await this.createURLs()).map((url:string)=> {
-            return JSON.stringify({
-                value: url
-            })
+            return {
+                "key" : "url",
+                "areResultsLogged": false, //FLAG TO LOG CHAIN RESULTS... (false default)
+                "value" : url }
         });
     }
     async produceURLs(){
         const messages = await this.formatURLsToMessages()
-        return messages.map(m => (this.producerService.topicProducer('reports-topic', [m])))
+        return messages.map((m: string | object) => (
+            this.producerService.topicProducer('requests-topic', [m])
+        ))
     }
 }
