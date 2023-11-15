@@ -5,7 +5,7 @@ import {Keys, ADSERVER_URL, DEVICE_CATEGORY, VAST_VERSION, WIDTH, HEIGHT, AID} f
  * argument macros receives variable data to conform a valid VAST TAG
  * argument id represents the AID 
 */
-const vastTagBuilder = (macros: any, id: string | number) => {return `${ADSERVER_URL}/?width=${WIDTH}&height=${HEIGHT}&cb=&ua=${macros.ua}&uip=${macros.uip}&app_name=${macros.name}&app_bundle=${macros.bundle}&device_model=&device_make=&device_category=${DEVICE_CATEGORY.smart_tv}&app_store_url=${encodeURIComponent(macros.store)}&device_id=${macros.deviceid || ''}&vast_version=${VAST_VERSION}&aid=${id}`;}
+const vastTagBuilder = (macros: any, id: string) => {return `${ADSERVER_URL}/?width=${WIDTH}&height=${HEIGHT}&cb=&ua=${macros.ua}&uip=${macros.uip}&app_name=${macros.name}&app_bundle=${macros.bundle}&device_model=&device_make=&device_category=${DEVICE_CATEGORY.smart_tv}&app_store_url=${encodeURIComponent(macros.store)}&device_id=${macros.deviceid || ''}&vast_version=${VAST_VERSION}&aid=${id}`;}
 
 /**
  * 
