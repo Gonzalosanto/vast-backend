@@ -12,8 +12,7 @@ export class ProducerService implements OnModuleInit {
     async onModuleInit() {
     }
 
-    async topicProducer(topic: string, messages: Array<string>) {
-        //Sends to specified topic a messages list...
+    async topicProducer(topic: string, messages: Array<string | object>) {
         try {
             await this.start();
             await this.producer.send({ topic: topic, messages: messages });
