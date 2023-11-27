@@ -1,19 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CreateAidDto } from './dto/create-aid.dto';
 import { UpdateAidDto } from './dto/update-aid.dto';
+import { SupplyAid } from './entities/supply-aid.entity';
 
 @Injectable()
 export class AidsService {
-  create(createAidDto: CreateAidDto) {
-    return createAidDto;
+  constructor(
+    @Inject('AID_REPOSITORY') private aidRepository: typeof SupplyAid,
+  ) {}
+
+  async create(createAidDto: any) {
+    return this.aidRepository.create(createAidDto);
   }
 
   findAll() {
     return `This action returns all aids`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} aid`;
+  async findOne(where: any, options?:any) {
+    return this.aidRepository.findOne({where: where, ...options});
   }
 
   update(id: number, updateAidDto: UpdateAidDto) {
