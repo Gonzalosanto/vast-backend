@@ -12,6 +12,8 @@ import { Uip } from 'src/api/uips/entities/uip.entity';
 import { Report } from 'src/api/reports/entities/report.entity';
 import { SupplyAid } from 'src/api/aids/entities/supply-aid.entity';
 import { DemandAid } from 'src/api/aids/entities/demand-aid.entity';
+import { Whitelist } from 'src/api/whitelists/entities/whitelist.entity';
+import { AidForm } from 'src/api/aid_forms/entities/aid_form.entity';
 
 const config = require(process.cwd() + '/src/config/config.json')[env];
 
@@ -37,7 +39,9 @@ export const databaseProviders = [
         applicationStore,
         Report,
         SupplyAid,
-        DemandAid
+        DemandAid,
+        Whitelist,
+        AidForm
       ]);
       await sequelize.sync();
       return sequelize;

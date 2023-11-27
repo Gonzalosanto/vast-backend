@@ -7,9 +7,11 @@ import {
   PrimaryKey,
   AutoIncrement,
   Unique,
+  HasMany,
 } from 'sequelize-typescript';
 import { StoreNames } from '../../store-names/entities/store-name.entity';
 import { applicationBundle } from '../../bundles/entities/bundles.entity';
+import { Whitelist } from 'src/api/whitelists/entities/whitelist.entity';
 @Table
 export class BundleStoreName extends Model {
   @PrimaryKey
@@ -29,4 +31,7 @@ export class BundleStoreName extends Model {
 
   @BelongsTo(() => applicationBundle)
   applicationBundle: applicationBundle;
+
+  @HasMany(() => Whitelist)
+  wl_id: number
 }
