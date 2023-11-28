@@ -13,12 +13,12 @@ export class OperatingSystemsService {
     return this.operatingSystem.create(createOperatingSystemDto);
   }
 
-  async findAll() {
-    return this.operatingSystem.findAll();
+  async findAll(options?: any) {
+    return this.operatingSystem.findAll(options);
   }
 
-  async findBy(where: any): Promise<any> {
-    return this.operatingSystem.findAll({where: where});
+  async findBy(where: any, options?: object): Promise<any> {
+    return this.operatingSystem.findAll({where: where, ...options});
   }
 
   async findOne(id: number) {
