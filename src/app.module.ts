@@ -9,14 +9,16 @@ import { ReportsModule } from './api/reports/reports.module';
 import { ReportsController} from './api/reports/reports.controller';
 import { KafkaModule } from './main/kafka/kafka.module';
 import { UrlProducerService } from './main/url-producer/url-producer.service';
+import { UserAgentsModule } from './main/user-agents/user-agents.module';
 
 @Module({
   imports: [
-    AuthModule, 
+    AuthModule,
     UsersModule,
+    UserAgentsModule,
     MacrosModule,
     ReportsModule,
-    KafkaModule
+    KafkaModule,
   ],
   controllers: [UsersController, ReportsController],
   providers: [UsersService, ReportsService, UrlProducerService],
