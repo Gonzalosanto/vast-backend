@@ -12,6 +12,7 @@ import { BundlesService } from '../bundles/bundles.service';
 import { StoreNamesService } from '../store-names/store-names.service';
 import { Op } from 'sequelize';
 import { applicationBundle } from '../bundles/entities/bundles.entity';
+import { OperatingSystem } from '../operating-systems/entities/operating-system.entity';
 @Injectable()
 export class BundleStoreNamesService {
   constructor(@Inject('BSN_REPOSITORY') private bundleStoreNameRepository: typeof BundleStoreName,
@@ -57,7 +58,9 @@ export class BundleStoreNamesService {
         },
         {
           model: applicationStore,
-          attributes: ['store']
+          include: [{
+            model : OperatingSystem, 
+          }]
         }],
       },{
         model: applicationBundle,
@@ -71,7 +74,8 @@ export class BundleStoreNamesService {
         id: b.bsn_id,
         bundle: b["applicationBundle.bundle"],
         name: b["storeName.applicationName.name"],
-        store: b["storeName.applicationStore.store"]
+        store: b["storeName.applicationStore.store"],
+        os: b["storeName.applicationStore.operatingSystem.os"]
       }
     })
   }
