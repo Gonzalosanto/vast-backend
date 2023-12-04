@@ -40,20 +40,24 @@ export class StoreNamesService {
 
   async findAll() {
     return this.storeNameRepository.findAll({
-      attributes:[],
       include: [
         { model: applicationStore, attributes: ['store'] },
         { model: applicationName, attributes: ['name'] },
-      ],
-    });
+      ],raw: true});
   }
 
-  async findBy(where: any, options: any) {
+  async findBy(where: any, options?: any) {
     return this.storeNameRepository.findAll({ where: where, ...options });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} storeName`;
+  async findOne(where: any, options?: any) {
+    return this.storeNameRepository.findOne({where: where,
+      include: [{
+        model: applicationName, attributes: ['name']
+      },
+      {
+        model: applicationStore, attributes: ['store']
+      }], ...options});
   }
 
   update(id: number, updateStoreNameDto: UpdateStoreNameDto) {

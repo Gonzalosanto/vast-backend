@@ -14,6 +14,10 @@ export class BundlesService {
     return this.bundleRepository.findAll({where: whereOptions, ...options});
   }
 
+  async findOne(where: any, options?:any){
+    return this.bundleRepository.findOne({where: where, ...options})
+  }
+
   async createBundle(createBundleDto: any): Promise<applicationBundle[] | applicationBundle>  {
     const currentBundles = await this.findBy(createBundleDto, {})
     if(currentBundles.length > 0) return currentBundles;
