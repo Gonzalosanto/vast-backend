@@ -3,7 +3,7 @@ import { Whitelist } from 'src/api/whitelists/entities/whitelist.entity';
 @Table
 export class SupplyAid extends Model {
   @Column
-  aid: number;
+  declare aid: number;
 
   @HasMany(() => Whitelist)
   wl_id: number
