@@ -2,16 +2,16 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import { CreateWhitelistDto } from './dto/create-whitelist.dto';
 import { UpdateWhitelistDto } from './dto/update-whitelist.dto';
 import { Whitelist } from './entities/whitelist.entity';
-import { AidsService } from '../aids/aids.service';
-import { BundleStoreNamesService, BundlesService, NamesService, StoreNamesService, StoreUrlsService } from '..';
+import { AidsService } from '../../main/aids/aids.service';
+import { BundleStoreNamesService, BundlesService, NamesService, StoreNamesService, StoreUrlsService } from '../../main/index';
 import { WhitelistMetadataService } from '../whitelist_metadata/whitelist_metadata.service';
-import { Op, Sequelize } from 'sequelize';
-import { SupplyAid } from '../aids/entities/supply-aid.entity';
-import { BundleStoreName } from '../bundle-store-names/entities/bundle-store-name.entity';
-import { applicationBundle } from '../bundles/entities/bundles.entity';
-import { StoreNames } from '../store-names/entities/store-name.entity';
-import { applicationName } from '../names/entities/name.entity';
-import { applicationStore } from '../store-urls/entities/store-url.entity';
+import { Op } from 'sequelize';
+import { SupplyAid } from '../../main/aids/entities/supply-aid.entity';
+import { BundleStoreName } from '../../main/bundle-store-names/entities/bundle-store-name.entity';
+import { applicationBundle } from '../../main/bundles/entities/bundles.entity';
+import { StoreNames } from '../../main/store-names/entities/store-name.entity';
+import { applicationName } from '../../main/names/entities/name.entity';
+import { applicationStore } from '../../main/store-urls/entities/store-url.entity';
 import { WhitelistMetadata } from '../whitelist_metadata/entities/whitelist_metadata.entity';
 
 @Injectable()

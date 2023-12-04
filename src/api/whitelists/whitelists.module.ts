@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { WhitelistsService } from './whitelists.service';
 import { WhitelistsController } from './whitelists.controller';
-import { AidsModule } from '../aids/aids.module';
-import { BundleStoreNamesModule } from '../bundle-store-names/bundle-store-names.module';
+import { AidsModule } from '../../main/aids/aids.module';
+import { BundleStoreNamesModule } from '../../main/bundle-store-names/bundle-store-names.module';
 import { Whitelist } from './entities/whitelist.entity';
 import { AidFormsModule } from '../whitelist_metadata/whitelist_metadata.module';
-import { BundleModule } from '../bundles/bundles.module';
-import { NamesModule } from '../names/names.module';
-import { StoreNamesModule } from '../store-names/store-names.module';
-import { StoreUrlsModule } from '../store-urls/store-urls.module';
+import { BundleModule } from '../../main/bundles/bundles.module';
+import { NamesModule } from '../../main/names/names.module';
+import { StoreNamesModule } from '../../main/store-names/store-names.module';
+import { StoreUrlsModule } from '../../main/store-urls/store-urls.module';
 
 
 @Module({

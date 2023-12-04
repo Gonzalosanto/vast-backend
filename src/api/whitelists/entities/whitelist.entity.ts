@@ -6,8 +6,8 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { WhitelistMetadata } from 'src/api/whitelist_metadata/entities/whitelist_metadata.entity';
-import { SupplyAid } from 'src/api/aids/entities/supply-aid.entity';
-import { BundleStoreName } from 'src/api/bundle-store-names/entities/bundle-store-name.entity';
+import { SupplyAid } from 'src/main/aids/entities/supply-aid.entity';
+import { BundleStoreName } from 'src/main/bundle-store-names/entities/bundle-store-name.entity';
 
 @Table
 export class Whitelist extends Model {
