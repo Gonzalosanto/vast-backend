@@ -76,7 +76,7 @@ export class BundleStoreNamesService {
     })
   }
 
-  async findBy(where: any, options: any){
+  async findBy(where: any, options?: any){
     return this.bundleStoreNameRepository.findAll({where: where, ...options});
   }
 

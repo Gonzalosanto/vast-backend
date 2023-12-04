@@ -10,6 +10,8 @@ import { DeviceId } from 'src/main/devices/entities/device.entity';
 import { UserAgent } from 'src/main/user-agents/entities/user-agent.entity';
 import { Uip } from 'src/main/uips/entities/uip.entity';
 import { Report } from 'src/api/reports/entities/report.entity';
+import { Whitelist } from 'src/api/whitelists/entities/whitelist.entity';
+import { WhitelistMetadata } from 'src/api/whitelist_metadata/entities/whitelist_metadata.entity';
 import { SupplyAid } from 'src/main/aids/entities/supply-aid.entity';
 import { DemandAid } from 'src/main/aids/entities/demand-aid.entity';
 
@@ -37,7 +39,9 @@ export const databaseProviders = [
         applicationStore,
         Report,
         SupplyAid,
-        DemandAid
+        DemandAid,
+        Whitelist,
+        WhitelistMetadata
       ]);
       await sequelize.sync();
       return sequelize;
