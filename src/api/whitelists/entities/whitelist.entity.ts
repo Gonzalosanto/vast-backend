@@ -5,7 +5,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { AidForm } from 'src/api/aid_forms/entities/aid_form.entity';
+import { WhitelistMetadata } from 'src/api/whitelist_metadata/entities/whitelist_metadata.entity';
 import { SupplyAid } from 'src/api/aids/entities/supply-aid.entity';
 import { BundleStoreName } from 'src/api/bundle-store-names/entities/bundle-store-name.entity';
 
@@ -13,27 +13,26 @@ import { BundleStoreName } from 'src/api/bundle-store-names/entities/bundle-stor
 export class Whitelist extends Model {
   
   @Column({ autoIncrement: true, primaryKey: true })
-  wl_id: number;
+  declare wl_id: number;
 
   @ForeignKey(() => SupplyAid)
   @Column
-  aid: number;
+  declare aid_id: number;
 
   @ForeignKey(() => BundleStoreName)
   @Column
-  bsn_id: number;
+  declare bsn_id: number;
 
-  @ForeignKey(() => AidForm)
+  @ForeignKey(() => WhitelistMetadata)
   @Column
-  id_form: number;
+  declare id_form: number;
 
-  @BelongsTo(() => SupplyAid)
-  suplyAid: SupplyAid;
+  @BelongsTo(() => SupplyAid, {onDelete:'NO ACTION', onUpdate:'NO ACTION'})
+  supplyAid: SupplyAid;
 
-  @BelongsTo(() => BundleStoreName)
+  @BelongsTo(() => BundleStoreName, {onDelete: 'NO ACTION', onUpdate: 'NO ACTION'})
   bundleStoreName: BundleStoreName;
 
-  @BelongsTo(() => AidForm)
-  aid_form: AidForm;
-   
+  @BelongsTo(() => WhitelistMetadata, {onDelete:'NO ACTION', onUpdate:'NO ACTION'})
+  aid_form: WhitelistMetadata;   
 }
