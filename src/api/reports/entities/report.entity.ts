@@ -1,7 +1,7 @@
 import { Model, Table, Column, ForeignKey, BelongsTo } from "sequelize-typescript";
-import { SupplyAid } from "src/api/aids/entities/supply-aid.entity";
-import { DemandAid } from "src/api/aids/entities/demand-aid.entity";
-import { BundleStoreName } from "src/api/bundle-store-names/entities/bundle-store-name.entity";
+import { SupplyAid } from "src/main/aids/entities/supply-aid.entity";
+import { DemandAid } from "src/main/aids/entities/demand-aid.entity";
+import { BundleStoreName } from "src/main/bundle-store-names/entities/bundle-store-name.entity";
 @Table
 export class Report extends Model {
     @Column
