@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, InternalServerErrorException } from '@nestjs/common';
 import { WhitelistsService } from './whitelists.service';
 import { CreateWhitelistDto } from './dto/create-whitelist.dto';
 import { UpdateWhitelistDto } from './dto/update-whitelist.dto';
@@ -14,12 +14,12 @@ export class WhitelistsController {
 
   @Get()
   findAll() {
-    return this.whitelistsService.findAll();
+    return this.whitelistsService.getAllWhitelists();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.whitelistsService.findOne(+id);
+  @Get(':aid')
+  findOne(@Param('aid') supply_aid: string) {
+      return this.whitelistsService.findAllByAid({'aid_id': supply_aid});
   }
 
   @Patch(':id')
