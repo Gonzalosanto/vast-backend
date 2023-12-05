@@ -7,6 +7,7 @@ import { MacrosModule } from './api/macros/macros.module';
 import { ReportsService } from './api/reports/reports.service';
 import { ReportsModule } from './api/reports/reports.module';
 import { ReportsController} from './api/reports/reports.controller';
+import { WhitelistsModule } from './api/whitelists/whitelists.module';
 import { KafkaModule } from './main/kafka/kafka.module';
 import { UrlProducerService } from './main/url-producer/url-producer.service';
 
@@ -16,9 +17,10 @@ import { UrlProducerService } from './main/url-producer/url-producer.service';
     UsersModule,
     MacrosModule,
     ReportsModule,
-    KafkaModule
+    WhitelistsModule
+    //KafkaModule
   ],
   controllers: [UsersController, ReportsController],
-  providers: [UsersService, ReportsService, UrlProducerService],
+  providers: [UsersService, ReportsService],
 })
 export class AppModule {}
