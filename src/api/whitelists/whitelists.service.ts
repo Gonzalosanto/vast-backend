@@ -30,10 +30,10 @@ export class WhitelistsService {
   async create(createWhitelistDto: CreateWhitelistDto) {
     const existingSupplyAid = await this.supplyAidService.findOne({ aid: createWhitelistDto.supply_aid });
     const supplyAidInstance = existingSupplyAid ?? (await this.supplyAidService.create({ supply_aid: createWhitelistDto.supply_aid }));
-    const currentWhitelistMetadata = await this.metadataService.findAll({ raw: true });
-    if (currentWhitelistMetadata) console.log(`There is no metadata linked with WL`);
-    const metadataInstance = await this.metadataService.create({});   //Creates metadata record associated with WL
 
+    const currentWhitelistInstance = await this.findOne({'aid_id': supplyAidInstance.id}, {raw: true});
+    const metadataInstance = currentWhitelistInstance ? await this.metadataService.findOne({'id_form': currentWhitelistInstance?.id_form}) : await this.metadataService.create(createWhitelistDto.metadata);
+    
     const bsnInstances = createWhitelistDto.bundleList.map(async (b) => {
       const bundleInstanceId = (await this.bundleService.findOne({ "bundle": b.bundle }))?.id;
       const nameInstanceId = (await this.nameService.findOne({ "name": b.name }))?.id;
@@ -55,7 +55,7 @@ export class WhitelistsService {
           const res = currentBundle || await this.whitelistsRepository.create({
             aid_id: supplyAidInstance.id,
             bsn_id: bsn.bsn_id,
-            id_form: metadataInstance.id ?? null
+            id_form: metadataInstance.id_form ?? null
           });
           return res;
         } catch (error) {
@@ -86,7 +86,7 @@ export class WhitelistsService {
         const result = await this.findAllByAid({ 'aid_id': aid.id });
         return result[0];
       });
-      return Promise.all(whitelists)
+      return (await Promise.all(whitelists)).filter(wl => {return wl != null });
     } catch (error) {
       throw new Error("Error while searching data. Value may not exist " + error);
     }
@@ -193,7 +193,6 @@ export class WhitelistsService {
       })
     })
     bundleList = this.filterBy(bundleList, 'bundle')
-    let response: any;
     const res = this.filterBy(whitelist, 'supplyAid.aid').map((wl: any) => { return transformObject(wl, bundleList) })
     return res
 
