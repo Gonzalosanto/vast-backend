@@ -25,7 +25,7 @@ export const urlsToRequest = async (macros: Array<object | string>) => {
  */
 export const processCSVFile = async (file: Buffer, callback?: (data: any) => Promise<any>, errorCallback?: (e:any)=> any): Promise<void> => {
 	const parser = parse({
-		delimiter:[";",",",":"],
+		delimiter:[";"],
 		skip_empty_lines: true,
 		skip_records_with_empty_values: true
 	})
