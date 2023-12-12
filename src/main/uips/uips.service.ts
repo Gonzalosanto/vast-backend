@@ -8,20 +8,24 @@ export class UipsService {
   constructor(@Inject('UIP_REPOSITORY') private uipRepository: typeof Uip){}
   async create(userIPRecord: any) {
     const currentUIP = await this.findBy(userIPRecord)
-    if(currentUIP.length > 0) return;
+    if(currentUIP.length > 0) return currentUIP;
     return this.uipRepository.create(userIPRecord);
   }
 
   async bulkCreate(userIPRecords: Array<any>){
-    return this.uipRepository.bulkCreate(userIPRecords)
+    try {
+      return this.uipRepository.bulkCreate(userIPRecords)      
+    } catch (error) {
+      console.error(`Error inserting user ips: ${error}`)
+    }
   }
 
   async findAll() {
     return this.uipRepository.findAll();
   }
 
-  async getRandomUips(limit: number, options?: any){
-    return this.uipRepository.findAll({attributes: ['uip'], order: Sequelize.literal('rand()'), limit: limit, raw: true})
+  async getRandomUip(limit: number, options?: any){
+    return this.uipRepository.findAll({attributes: ['uip'], order: Sequelize.literal('rand()'), limit: limit, raw: true, ...options})
   }
 
   async findBy(whereOptions: any, options?: object){

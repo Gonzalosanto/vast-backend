@@ -8,8 +8,8 @@ export class DevicesService {
   constructor(@Inject('DEVICE_REPOSITORY') private devicesRepository: typeof DeviceId){}
   async create(deviceIdRecord: any) {
     const currentDeviceIds = await this.findBy(deviceIdRecord)
-    if(currentDeviceIds.includes(deviceIdRecord)) return currentDeviceIds;
-    return this.devicesRepository.create({deviceIdRecord});
+    if(currentDeviceIds.length > 0) return currentDeviceIds;
+    return this.devicesRepository.create(deviceIdRecord);
   }
 
   async bulkCreate(userIPRecords: Array<any>){
@@ -28,8 +28,8 @@ export class DevicesService {
     return this.devicesRepository.findByPk(id);
   }
 
-  async getRandomDevices(limit: number){
-    return this.devicesRepository.findAll({attributes: ['deviceid'], order: Sequelize.literal('rand()'), limit: limit, raw: true})
+  async getRandomDevice(limit: number, options?: any){
+    return this.devicesRepository.findAll({attributes: ['deviceid'], order: Sequelize.literal('rand()'), limit: limit, raw: true, ...options})
   }
 
   update(id: number, updateDeviceDto: UpdateDeviceDto) {

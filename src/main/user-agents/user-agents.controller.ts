@@ -27,7 +27,7 @@ export class UserAgentsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userAgentsService.findOne(+id);
+    //return this.userAgentsService.findOne(+id);
   }
 
   @Patch(':id')
@@ -35,7 +35,7 @@ export class UserAgentsController {
     @Param('id') id: string,
     @Body() updateUserAgentDto: UpdateUserAgentDto,
   ) {
-    return this.userAgentsService.update(+id, updateUserAgentDto);
+    //return this.userAgentsService.update(+id, updateUserAgentDto);
   }
 
   @Delete(':id')
