@@ -12,11 +12,11 @@ import { Uip } from 'src/main/uips/entities/uip.entity';
 @Table
 export class UserAgent extends Model {
   @Column({unique:true})
-  ua: string;
+  declare ua: string;
 
   @ForeignKey(() => OperatingSystem)
   @Column
-  operatingSystemId: number;
+  declare operatingSystemId: number;
 
   @BelongsTo(() => OperatingSystem)
   operatingSystem: OperatingSystem;

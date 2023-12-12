@@ -1,8 +1,13 @@
+const env = process.env.NODE_ENV || 'development';
 import { HttpException, HttpCode, HttpStatus, Controller, Get, Post, Put, Delete, Body, UseInterceptors, UploadedFile } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { MacrosService } from './macros.service';
-import Papa from 'papaparse';
+import 'fs'
 
+const multerOptions = {
+    dest: './public/uploads/',
+    limits: { fileSize: 1024 * 1000 * 10} // 10 Megabytes limit
+}
 @Controller('macros')
 export class MacrosController {
     constructor(private macrosService: MacrosService){}
@@ -13,23 +18,21 @@ export class MacrosController {
     }
 
     @Post('load-bundles')
-    @UseInterceptors(FileInterceptor('file'))
+    @HttpCode(202)
+    @UseInterceptors(FileInterceptor('file', multerOptions))
     async createFromFile(@UploadedFile() file: Express.Multer.File){
         if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
-        const fileDataAsJSON = Papa.parse((file.buffer).toString());
-        if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
-        this.macrosService.createFromFileData(fileDataAsJSON)
-        return "Processing filedata of bundles...";
+        await this.macrosService.readDeviceData(file, "bundles");
+        return;
     }
 
     @Post('load-devices')
-    @UseInterceptors(FileInterceptor('file'))
+    @HttpCode(202)
+    @UseInterceptors(FileInterceptor('file', multerOptions))
     async createDevicesFromFile(@UploadedFile() file: Express.Multer.File){
         if(!file) throw new HttpException('File not found', HttpStatus.CONFLICT);
-        const fileDataAsJSON = Papa.parse((file.buffer).toString());
-        if(fileDataAsJSON.errors.length > 0) {throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);}
-        this.macrosService.createDevicesFromFileData(fileDataAsJSON);
-        return "Processing filedata of devices  ...";
+        await this.macrosService.readDeviceData(file, "devices");
+        return;
     }
     @Post()
     async createFromFormData(@Body() data: any): Promise<any>{
