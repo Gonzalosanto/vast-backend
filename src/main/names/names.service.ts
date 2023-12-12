@@ -19,8 +19,8 @@ export class NamesService {
   async findBy(lookup: any, options?: any){
     return this.nameRepository.findAll({where: lookup, ...options})
   }
-  async findOne(id: number) {
-    return `This action returns a #${id} name`;
+  async findOne(condition: any, options?:any) {
+    return this.nameRepository.findOne({where: condition, ...options});
   }
 
   async update(id: number, updateNameDto: UpdateNameDto) {

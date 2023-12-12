@@ -20,8 +20,8 @@ export class StoreUrlsService {
     return this.storeRepository.findAll();
   }
 
-  async findOne(id: number) {
-    return this.storeRepository.findOne({where : {id: id}});
+  async findOne(condition: any, options?: any) {
+    return this.storeRepository.findOne({where : condition, ...options});
   }
 
   async update(field: string, searchValue: any, valuesToUpdate: any) {

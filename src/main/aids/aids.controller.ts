@@ -13,7 +13,7 @@ import { UpdateAidDto } from './dto/update-aid.dto';
 
 @Controller('aids')
 export class AidsController {
-  constructor(private readonly aidsService: AidsService) {}
+  constructor(private readonly aidsService: AidsService) { }
 
   @Post()
   create(@Body() createAidDto: CreateAidDto) {
@@ -22,7 +22,7 @@ export class AidsController {
 
   @Get()
   findAll() {
-    return this.aidsService.findAll();
+    return "Not found";
   }
 
   @Get(':id')
