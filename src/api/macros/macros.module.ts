@@ -11,6 +11,7 @@ import { DevicesModule } from 'src/main/devices/devices.module';
 import { StoreUrlsModule } from 'src/main/store-urls/store-urls.module';
 import { UipsModule } from 'src/main/uips/uips.module';
 import { StoreNamesModule } from 'src/main/store-names/store-names.module';
+import { WhitelistsModule } from '../whitelists/whitelists.module';
 @Module({
   imports:[
     DatabaseModule, 
@@ -19,6 +20,7 @@ import { StoreNamesModule } from 'src/main/store-names/store-names.module';
     UserAgentsModule,
     UipsModule, 
     DevicesModule, 
+    WhitelistsModule,
     BundleStoreNamesModule,
     StoreNamesModule, 
     BundleModule,

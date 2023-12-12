@@ -17,10 +17,10 @@ import { UrlProducerService } from './main/url-producer/url-producer.service';
     UsersModule,
     MacrosModule,
     ReportsModule,
-    WhitelistsModule
-    //KafkaModule
+    WhitelistsModule,
+    KafkaModule
   ],
   controllers: [UsersController, ReportsController],
-  providers: [UsersService, ReportsService],
+  providers: [UsersService, ReportsService, UrlProducerService],
 })
 export class AppModule {}

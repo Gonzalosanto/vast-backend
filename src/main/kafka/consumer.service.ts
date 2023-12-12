@@ -12,7 +12,7 @@ export class ConsumerService implements OnModuleInit {
 
     async onModuleInit() {
         try {
-            await this.handleReportsSubscription()
+            //await this.handleReportsSubscription()
         } catch (error) {
             console.log('Could not establish any connection')
         }
