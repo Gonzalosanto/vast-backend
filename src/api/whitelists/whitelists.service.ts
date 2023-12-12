@@ -48,6 +48,7 @@ export class WhitelistsService {
       });
     })
     if (bsnInstances) {
+      //TODO: Handle empty bundleList to save an empty whitelist. If some value inside bundleList is not valid, return an error.
       bsnInstances.map(async (bsnInstance) => {
         try {
           const bsn = (await bsnInstance)[0]
@@ -64,6 +65,7 @@ export class WhitelistsService {
       })
 
     } else {
+      //Error 
       throw new Error('No existe esta combinación en la base de datos');
     }
   }
@@ -193,9 +195,7 @@ export class WhitelistsService {
       })
     })
     bundleList = this.filterBy(bundleList, 'bundle')
-    const res = this.filterBy(whitelist, 'supplyAid.aid').map((wl: any) => { return transformObject(wl, bundleList) })
-    return res
-
+    return this.filterBy(whitelist, 'supplyAid.aid').map((wl: any) => { return transformObject(wl, bundleList) })
   }
   filterBy(array: any[], property: any) {
     const uniqueValues = new Set();

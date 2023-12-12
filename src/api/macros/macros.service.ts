@@ -5,31 +5,53 @@ import { readFileSync, unlinkSync } from 'fs';
 import path from 'path';
 import { randomInt } from 'crypto';
 import { Sequelize } from 'sequelize';
+import { WhitelistsService } from '../whitelists/whitelists.service';
 
 @Injectable()
 export class MacrosService {
-    constructor(
-        private bundleStoreNameService: BundleStoreNamesService,
-        private userAgents: UserAgentsService,
-        private devices: DevicesService,
-        private userIps: UipsService,
-    ) { }
+    private readonly randomLimit = 4000;
+    constructor(private bundleStoreNameService: BundleStoreNamesService,
+            private whitelistService: WhitelistsService, 
+            private userAgents: UserAgentsService,
+            private devices: DevicesService,
+            private userIps: UipsService){}
 
     async getMacros() {
-        const randomUips = await this.userIps.getRandomUip(1000);
-        const randomDevices = await this.devices.getRandomDevice(1000)
-
-        const bundles = await this.bundleStoreNameService.findAll();
-        const getUserAgentByOS = async (os: any) => {
-            const ua = await this.userAgents.getUserAgentsByOS(os, {order: Sequelize.literal('rand()'), limit: 1 })
-            return ua[0]?.ua ?? ua
+        const mixData = async (bundles: Array<any>) => {
+            const deviceData = {
+                uas: await this.userAgents.getRandomUas({raw: true}), 
+                uips: await this.userIps.getRandomUips(this.randomLimit), 
+                deviceids: await this.devices.getRandomDevices(this.randomLimit)
+            }
+            const deviceDataMixed = deviceData.uas.map((ua, index)=> {
+                const uip = deviceData.uips[index].uip
+                const deviceid = deviceData.deviceids[index].deviceid
+                return {ua: ua.ua, uip, deviceid}
+            })
+            return bundles.map((bundle, index) => {
+                return {...bundle, ...deviceDataMixed[index]}
+            })
         }
-        const mixedBundlesXDeviceData = bundles.map( async (bundle) => {
-            const ua = await getUserAgentByOS(bundle.os)
-            const mixedData = { ...bundle, ua: ua, uip: randomUips[randomInt(randomUips.length - 1)].uip, deviceid: randomDevices[randomInt(randomDevices.length - 1)].deviceid}
-            return mixedData;
+        const wlsInstances = await this.whitelistService.getAllWhitelists();
+        const aids = []
+        const bundleListByAID = wlsInstances.map(wl=> {
+            aids.push(wl.supply_aid);
+            return {aid: wl.supply_aid, bundleList : wl.bundleList}
         });
-        return Promise.all(mixedBundlesXDeviceData);
+        const macrosByAID = bundleListByAID.map((bundleList) => {
+            const aid = bundleList.aid
+            return bundleList.bundleList.map(async (bundles: any) => {
+                const bsnValues = []
+                bsnValues.push({
+                        aid: aid,
+                        bundle : bundles.bundle.bundle,
+                        name : bundles.name.name,
+                        store: bundles.store.store
+                })
+                return mixData(bsnValues);
+            });
+        })
+        return macrosByAID;
     }
 
     //TODO: Implement creation from form data

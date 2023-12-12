@@ -19,10 +19,10 @@ import { UserAgentsModule } from './main/user-agents/user-agents.module';
     UserAgentsModule,
     MacrosModule,
     ReportsModule,
-    WhitelistsModule
-    //KafkaModule
+    WhitelistsModule,
+    KafkaModule
   ],
   controllers: [UsersController, ReportsController],
-  providers: [UsersService, ReportsService],
+  providers: [UsersService, ReportsService, UrlProducerService],
 })
 export class AppModule {}

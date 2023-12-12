@@ -12,7 +12,14 @@ export class UrlProducerService implements OnModuleInit {
         this.produceURLs()
     }
     async createURLs(){
-        return urlsToRequest(await this.macrosService.getMacros());
+        const macrosByAID = await this.macrosService.getMacros();
+        const urls = await Promise.all(macrosByAID.map(async (macros) => {
+            return Promise.all(macros.map(async (macro: any)=>{
+                const url = urlsToRequest(await macro)
+                return (await url)
+            }))
+        }))
+        return urls.flat(2); 
     }
     async formatURLsToMessages(): Promise<string[] | object[]>{
         return (await this.createURLs()).map((url:string)=> {
@@ -21,7 +28,7 @@ export class UrlProducerService implements OnModuleInit {
                 "areResultsLogged": false, //FLAG TO LOG CHAIN RESULTS... (false default)
                 "value" : url }
         });
-    }
+    } 
     async produceURLs(){
         const messages = await this.formatURLsToMessages()
         return messages.map((m: string | object) => (
