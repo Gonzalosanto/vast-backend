@@ -3,8 +3,6 @@ import { BundleStoreNamesService, DevicesService, UipsService, UserAgentsService
 import { processCSVFile } from 'src/utils';
 import { readFileSync, unlinkSync } from 'fs';
 import path from 'path';
-import { randomInt } from 'crypto';
-import { Sequelize } from 'sequelize';
 import { WhitelistsService } from '../whitelists/whitelists.service';
 
 @Injectable()
@@ -20,8 +18,8 @@ export class MacrosService {
         const mixData = async (bundles: Array<any>) => {
             const deviceData = {
                 uas: await this.userAgents.getRandomUas({raw: true}), 
-                uips: await this.userIps.getRandomUips(this.randomLimit), 
-                deviceids: await this.devices.getRandomDevices(this.randomLimit)
+                uips: await this.userIps.getRandomUip(this.randomLimit), 
+                deviceids: await this.devices.getRandomDevice(this.randomLimit)
             }
             const deviceDataMixed = deviceData.uas.map((ua, index)=> {
                 const uip = deviceData.uips[index].uip
@@ -82,21 +80,27 @@ export class MacrosService {
             await this.userAgents.create(ua);
             await this.userIps.create(uip);
             await this.devices.create(deviceid);
-            return;
         } catch (error) {
             console.log(`${error}`);
         }
     }
 
-    async createBundleData(row: any): Promise<void> {
+    async createBundleData(rows: Array<any>): Promise<void> {
         try {
-            const bundle = {
-                bundle: row[0],
-                name: row[1],
-                store: row[2],
-                os: row[3]
-            };
-            await this.bundleStoreNameService.createWithRelationships(bundle);
+            const bundleSet = new Set()
+            const nameSet = new Set()
+            const storeSet = new Set()
+            const osSet = new Set()
+            rows.forEach((row) => {
+                    bundleSet.add(row[0])
+                    nameSet.add(row[1])
+                    storeSet.add(row[2])
+                    osSet.add(row[3])
+            })
+            const records = {
+                osSet, bundleSet, storeSet, nameSet
+            }
+            await this.bundleStoreNameService.createWithRelationships(records);
         } catch (error) {
             console.log(`Error saving bundle data: ${error}`);
         }
