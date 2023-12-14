@@ -7,7 +7,7 @@ import { WhitelistsService } from '../whitelists/whitelists.service';
 
 @Injectable()
 export class MacrosService {
-    private readonly randomLimit = 4000;
+    private readonly randomLimit = 1000;
     constructor(private bundleStoreNameService: BundleStoreNamesService,
             private whitelistService: WhitelistsService, 
             private userAgents: UserAgentsService,
@@ -15,9 +15,10 @@ export class MacrosService {
             private userIps: UipsService){}
 
     async getMacros() {
+        //Improve mixData performance
         const mixData = async (bundles: Array<any>) => {
             const deviceData = {
-                uas: await this.userAgents.getRandomUas({raw: true}), 
+                uas: await this.userAgents.getRandomUas({raw: true, limit: this.randomLimit}), 
                 uips: await this.userIps.getRandomUip(this.randomLimit), 
                 deviceids: await this.devices.getRandomDevice(this.randomLimit)
             }
@@ -49,7 +50,8 @@ export class MacrosService {
                 return mixData(bsnValues);
             });
         })
-        return macrosByAID;
+        const res = await Promise.all(macrosByAID.flat(1))
+        return res;
     }
 
     //TODO: Implement creation from form data
@@ -106,13 +108,13 @@ export class MacrosService {
             const recordsSet = new Set()
             rows.forEach((row) => {
                     bundleSet.add(row[0])
-                    nameSet.add(row[1])
-                    storeSet.add(row[2])
+                    nameSet.add(encodeURI(row[1]))
+                    storeSet.add(encodeURI(row[2]))
                     osSet.add(row[3])
                     recordsSet.add({
                         bundle: row[0],
-                        name: row[1],
-                        store: row[2],
+                        name: encodeURI(row[1]),
+                        store: encodeURI(row[2]),
                         os: row[3]
                     });
             })
