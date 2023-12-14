@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateBundleStoreNameDto } from './dto/create-bundle-store-name.dto';
 import { UpdateBundleStoreNameDto } from './dto/update-bundle-store-name.dto';
 import { BundleStoreName } from './entities/bundle-store-name.entity';
 import { StoreNames } from '../store-names/entities/store-name.entity';
@@ -33,16 +32,40 @@ export class BundleStoreNamesService {
   }
 
   async createWithRelationships(bundleStoreNameObject: any){
+    const createBundleStoreName = async (bundles: any) => {
+      for await (const os of bundles.osSet) {
+        await this.operatingSystemService.create({'os': os})
+      }
+      for await (const store of bundles.storeSet) {
+        await this.storeService.create({'store': store})
+      }
+      for await (const bundle of bundles.bundleSet) {
+        await this.bundleService.createBundle({'bundle': bundle})
+      }
+      for await (const name of bundles.nameSet) {
+        await this.namesService.create({'name': name})
+      }
+    }
+    const createRelationships = async (bundles: any) => {
+      for await (const record of bundles.recordsSet) {
+        const osInstance = (await this.operatingSystemService.findBy({'os': record.os}))[0].dataValues
+        await this.storeService.updateOS(osInstance.id, {where: {'store': record.store}})
+        
+        const nameInstance = (await this.namesService.findBy({'name': record.name}))[0].dataValues;
+        const storeInstance = (await this.storeService.findBy({'store': record.store}))[0].dataValues;
+        await this.storeNameService.create({applicationNameId: nameInstance.id, applicationStoreId: storeInstance.id});        
+      }
+      for await (const record of bundles.recordsSet) {
+        const nameInstance = (await this.namesService.findBy({'name': record.name}))[0].dataValues;
+        const storeInstance = (await this.storeService.findBy({'store': record.store}))[0].dataValues;
+        const bundleInstance = (await this.bundleService.findBy({'bundle': record.bundle}))[0].dataValues
+        const storeNameInstance = (await this.storeNameService.findBy({'applicationStoreId': storeInstance.id, 'applicationNameId': nameInstance.id}))[0].dataValues;
+        await this.create({storeNameId: storeNameInstance.sn_id, applicationBundleId: bundleInstance.id})
+      }
+    }
     try {
-      const osInstance = await this.operatingSystemService.create({os: bundleStoreNameObject.os});
-      const storeInstance = await this.storeService.create({store: bundleStoreNameObject.store});
-      await this.storeService.update('operatingSystemId', storeInstance, {operatingSystemId: osInstance.id})
-  
-      const nameInstance = await this.namesService.create({name: bundleStoreNameObject.name});
-      const bundleInstance = await this.bundleService.createBundle({bundle: bundleStoreNameObject.bundle});
-  
-      const storeNameInstance = await this.storeNameService.create({applicationNameId: nameInstance, applicationStoreId: storeInstance});
-      await this.create({storeNameId: storeNameInstance[0].dataValues.sn_id,applicationBundleId: bundleInstance[0].dataValues.id})
+      await createBundleStoreName(bundleStoreNameObject)
+      await createRelationships(bundleStoreNameObject)
     } catch (error) {
       console.log(error)
     }
