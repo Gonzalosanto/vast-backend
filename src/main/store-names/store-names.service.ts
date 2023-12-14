@@ -17,22 +17,18 @@ export class StoreNamesService {
           [Op.and]: [
             {
               applicationNameId:
-                storeNameObject.applicationNameId[0].dataValues.id,
+                storeNameObject.applicationNameId,
             },
             {
               applicationStoreId:
-                storeNameObject.applicationStoreId[0].dataValues.id,
+                storeNameObject.applicationStoreId,
             },
           ],
         },
         {},
       );
       if (currentStoreNames.length > 0) return currentStoreNames;
-      const storeNameInstance = await this.storeNameRepository.create({
-        applicationNameId: storeNameObject.applicationNameId[0].dataValues.id,
-        applicationStoreId: storeNameObject.applicationStoreId[0].dataValues.id,
-      });
-      return storeNameInstance;
+      return this.storeNameRepository.create({applicationNameId: storeNameObject.applicationNameId, applicationStoreId: storeNameObject.applicationStoreId});
     } catch (error) {
       console.log(error);
     }
