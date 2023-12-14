@@ -72,14 +72,26 @@ export class MacrosService {
         unlinkSync(filePath)
     }
 
-    async createDeviceData(row: Array<string>): Promise<any> {
+    async createDeviceData(rows: Array<string>): Promise<any> {
         try {
-            const deviceid = { deviceid: row[0] };
-            const ua = { ua: row[1] };
-            const uip = { uip: row[2] };
-            await this.userAgents.create(ua);
-            await this.userIps.create(uip);
-            await this.devices.create(deviceid);
+            
+            const deviceSet = new Set()
+            const uaSet = new Set()
+            const uipSet = new Set()
+            rows.forEach((row) => {
+                deviceSet.add(row[0])
+                uaSet.add(row[1])
+                uipSet.add(row[2])
+            })
+            for await (const device of deviceSet) {
+                await this.devices.create({'deviceid': device});
+            }
+            for await (const ua of uaSet) {
+                await this.userAgents.create({"ua":ua});
+            }
+            for await (const uip of uipSet) {
+                await this.userIps.create({'uip': uip});
+            }
         } catch (error) {
             console.log(`${error}`);
         }
@@ -91,14 +103,21 @@ export class MacrosService {
             const nameSet = new Set()
             const storeSet = new Set()
             const osSet = new Set()
+            const recordsSet = new Set()
             rows.forEach((row) => {
                     bundleSet.add(row[0])
                     nameSet.add(row[1])
                     storeSet.add(row[2])
                     osSet.add(row[3])
+                    recordsSet.add({
+                        bundle: row[0],
+                        name: row[1],
+                        store: row[2],
+                        os: row[3]
+                    });
             })
             const records = {
-                osSet, bundleSet, storeSet, nameSet
+                osSet, bundleSet, storeSet, nameSet, recordsSet
             }
             await this.bundleStoreNameService.createWithRelationships(records);
         } catch (error) {
