@@ -38,7 +38,10 @@ export class WhitelistsService {
       const bundleInstanceId = (await this.bundleService.findOne({ "bundle": b.bundle }))?.id;
       const nameInstanceId = (await this.nameService.findOne({ "name": b.name }))?.id;
       const storeInstanceId = (await this.storeService.findOne({ "store": b.store }))?.id;
-
+      //If some value inside bundleList is not valid or not found, return an error.
+      if(!nameInstanceId) throw new Error("Name not found")
+      if(!bundleInstanceId) throw new Error("Bundle not found")
+      if(!storeInstanceId) throw new Error("Store url not found")
       const storeNameInstanceId = (await this.storeNameService.findBy({ "applicationStoreId": storeInstanceId, "applicationNameId": nameInstanceId }))[0].sn_id
       return this.bundleStoreNameService.findBy({
         [Op.and]: [
@@ -48,7 +51,7 @@ export class WhitelistsService {
       });
     })
     if (bsnInstances) {
-      //TODO: Handle empty bundleList to save an empty whitelist. If some value inside bundleList is not valid, return an error.
+      //TODO: Handle empty bundleList to save an empty whitelist. If empty, references to every bundle...
       bsnInstances.map(async (bsnInstance) => {
         try {
           const bsn = (await bsnInstance)[0]
@@ -65,8 +68,7 @@ export class WhitelistsService {
       })
 
     } else {
-      //Error 
-      throw new Error('No existe esta combinación en la base de datos');
+      throw new Error("This combination doesn't exists");
     }
   }
 
