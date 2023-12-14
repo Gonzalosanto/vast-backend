@@ -31,4 +31,8 @@ export class StoreUrlsService {
   async remove(id: number) {
     return `This action removes a #${id} storeUrl`;
   }
+
+  async updateOS(os: any, options: any){
+    return this.storeRepository.update({'operatingSystemId' : os}, options)
+  }
 }
