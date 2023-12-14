@@ -10,7 +10,7 @@ export class BundlesService {
     return this.bundleRepository.findAll();
   }
 
-  async findBy(whereOptions: any, options: any): Promise<applicationBundle[]>{
+  async findBy(whereOptions: any, options?: any): Promise<applicationBundle[]>{
     return this.bundleRepository.findAll({where: whereOptions, ...options});
   }
 
