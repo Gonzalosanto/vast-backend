@@ -3,6 +3,7 @@ import { UserAgent } from './entities/user-agent.entity';
 import { Sequelize } from 'sequelize-typescript';
 import { OperatingSystem } from '../operating-systems/entities/operating-system.entity';
 import { OperatingSystemsService } from '../operating-systems/operating-systems.service';
+import { FindOptions } from 'sequelize';
 
 @Injectable()
 export class UserAgentsService {
@@ -56,7 +57,7 @@ export class UserAgentsService {
     }
   }
 
-  async getRandomUas(options?: any){
+  async getRandomUas(options?: FindOptions){
     try {
       return this.userAgentRepository.findAll({attributes: ['ua'], order: Sequelize.literal('rand()'), ...options})      
     } catch (error) {
