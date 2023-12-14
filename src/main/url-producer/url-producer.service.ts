@@ -13,26 +13,24 @@ export class UrlProducerService implements OnModuleInit {
     }
     async createURLs(){
         const macrosByAID = await this.macrosService.getMacros();
-        const urls = await Promise.all(macrosByAID.map(async (macros) => {
-            return Promise.all(macros.map(async (macro: any)=>{
-                const url = urlsToRequest(await macro)
-                return (await url)
-            }))
-        }))
-        return urls.flat(2); 
+        const urls = macrosByAID.map(async (macros) => {
+            const url = urlsToRequest(await macros)
+            return (await url)            
+        })
+        return Promise.all(urls);
     }
     async formatURLsToMessages(): Promise<string[] | object[]>{
-        return (await this.createURLs()).map((url:string)=> {
+        return (await this.createURLs()).map((url: any)=> {
             return {
                 "key" : "url",
                 "areResultsLogged": false, //FLAG TO LOG CHAIN RESULTS... (false default)
-                "value" : url }
+                "value" : url[0] }
         });
     } 
     async produceURLs(){
         const messages = await this.formatURLsToMessages()
-        return messages.map((m: string | object) => (
+        return messages.map((m: any) => {
             this.producerService.topicProducer('requests-topic', [m])
-        ))
+        })
     }
 }
