@@ -50,7 +50,7 @@ export class MacrosService {
     });
 
     const res = await mixData(bsnValues);
-    return res;
+    return res; 
   }
 
   //TODO: Implement creation from form data

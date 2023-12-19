@@ -16,7 +16,7 @@ const vastTagBuilder = (macros: any) => {return `${ADSERVER_URL}/?width=${WIDTH}
  * @returns a list of URLs ready to be requested
  */
 export const urlsToRequest = async (macros: Array<object | string>) => {
-	return macros.map((macro:any) => {return vastTagBuilder(macro)})
+	return vastTagBuilder(macros)
 }
 
 //----------------------------------------------------------------FILE PROCESSING UTILS----------------------------------------------------------------------------------------//

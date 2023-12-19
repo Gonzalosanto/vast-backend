@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { MacrosService } from 'src/api/macros/macros.service';
 import { urlsToRequest } from 'src/utils';
 import { ProducerService } from '../kafka/producer.service';
+import 'dotenv/config';
 
 @Injectable()
 export class UrlProducerService implements OnModuleInit {
@@ -24,13 +25,13 @@ export class UrlProducerService implements OnModuleInit {
             return {
                 "key" : "url",
                 "areResultsLogged": false, //FLAG TO LOG CHAIN RESULTS... (false default)
-                "value" : url[0] }
+                "value" : url }
         });
     } 
     async produceURLs(){
         const messages = await this.formatURLsToMessages()
         return messages.map((m: any) => {
-            this.producerService.topicProducer('requests-topic', [m])
-        })
+            this.producerService.topicProducer(process.env.KAFKA_TEST_TOPIC, [m])
+        }) 
     }
 }
