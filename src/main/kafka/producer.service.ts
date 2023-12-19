@@ -22,7 +22,7 @@ export class ProducerService {
   async topicProducer(topic: string, messages: Message[]) {
     try {
       const currentProducerInstance = ProducerService.getInstance();
-      currentProducerInstance.start();
+      await currentProducerInstance.start();
       await currentProducerInstance.producer.send({ topic: topic, messages: messages});
     } catch (error) {
       console.error(error);
