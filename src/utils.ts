@@ -16,7 +16,7 @@ const vastTagBuilder = (macros: any) => {return `${ADSERVER_URL}/?width=${WIDTH}
  * @returns a list of URLs ready to be requested
  */
 export const urlsToRequest = async (macros: Array<object | string>) => {
-	return macros.map((macro:any) => {return vastTagBuilder(macro)})
+	return vastTagBuilder(macros)
 }
 
 //----------------------------------------------------------------FILE PROCESSING UTILS----------------------------------------------------------------------------------------//
@@ -24,6 +24,7 @@ export const urlsToRequest = async (macros: Array<object | string>) => {
  * 
  */
 export const processCSVFile = async (file: Buffer, callback?: (data: any) => Promise<any>, errorCallback?: (e:any)=> any): Promise<void> => {
+	let records = [];
 	const parser = parse({
 		delimiter:[";"],
 		skip_empty_lines: true,
@@ -34,8 +35,8 @@ export const processCSVFile = async (file: Buffer, callback?: (data: any) => Pro
 	stream.push(file);
 	stream.push(null);
 	stream.pipe(parser).on('data', async (record) => {
-		await callback(record)
+		records.push(record);
 	})
-	parser.on('end',()=>{return;})
+	parser.on('end',()=>{return callback(records);})
 	parser.on('error', (e)=>{errorCallback(e)})
 }
