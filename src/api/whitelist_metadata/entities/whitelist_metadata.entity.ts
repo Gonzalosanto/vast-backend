@@ -23,7 +23,10 @@ export class WhitelistMetadata extends Model {
     declare optimized: boolean;
 
     @Column
-    declare whitelisted: boolean;
+    declare notes: string;
+
+    @Column
+    declare enabled: boolean;
 
     @HasOne(() => Whitelist)
     whitelist: Whitelist;
