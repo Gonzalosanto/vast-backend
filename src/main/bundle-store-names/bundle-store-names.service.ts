@@ -94,7 +94,7 @@ export class BundleStoreNamesService {
     });
     return bundles.map((b: any) => {
       return {
-        id: b.bsn_id,
+        bsn_id: b.bsn_id,
         bundle: b["applicationBundle.bundle"],
         name: b["storeName.applicationName.name"],
         store: b["storeName.applicationStore.store"],
