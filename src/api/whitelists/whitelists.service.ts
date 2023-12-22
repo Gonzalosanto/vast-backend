@@ -13,6 +13,7 @@ import { StoreNames } from '../../main/store-names/entities/store-name.entity';
 import { applicationName } from '../../main/names/entities/name.entity';
 import { applicationStore } from '../../main/store-urls/entities/store-url.entity';
 import { WhitelistMetadata } from '../whitelist_metadata/entities/whitelist_metadata.entity';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class WhitelistsService {
@@ -28,33 +29,35 @@ export class WhitelistsService {
   ) { }
 
   async create(createWhitelistDto: CreateWhitelistDto) {
+    let bsnInstances = [];
+    if(createWhitelistDto.bundleList.length === 0){
+      bsnInstances = await this.bundleStoreNameService.findAll();
+    }else{
+       bsnInstances = await Promise.all(createWhitelistDto.bundleList.map(async (b,i) => {
+        const bundleInstanceId = (await this.bundleService.findOne({ "bundle": b.bundle }))?.id;
+        const nameInstanceId = (await this.nameService.findOne({ "name": b.name }))?.id;
+        const storeInstanceId = (await this.storeService.findOne({ "store": b.store }))?.id;
+        if(!bundleInstanceId)throw new BadRequestException("Combination "+ (i+1)+" has this error:"+ " Bundle not found "+ b.bundle) 
+        if(!nameInstanceId) throw new BadRequestException("Combination "+ (i+1)+" has this error:"+ " Name not found "+ b.name) 
+        if(!storeInstanceId)throw new BadRequestException("Combination "+ (i+1)+" has this error:"+ "Store "+ b.store)
+
+        const storeNameInstanceId = (await this.storeNameService.findBy({ "applicationStoreId": storeInstanceId, "applicationNameId": nameInstanceId }))[0].sn_id
+        return this.bundleStoreNameService.findBy({
+          [Op.and]: [
+            { 'applicationBundleId': bundleInstanceId },
+            { 'storeNameId': storeNameInstanceId }
+          ],
+        })[0];
+      }));
+    } 
     const existingSupplyAid = await this.supplyAidService.findOne({ aid: createWhitelistDto.supply_aid });
     const supplyAidInstance = existingSupplyAid ?? (await this.supplyAidService.create({ supply_aid: createWhitelistDto.supply_aid }));
 
     const currentWhitelistInstance = await this.findOne({'aid_id': supplyAidInstance.id}, {raw: true});
     const metadataInstance = currentWhitelistInstance ? await this.metadataService.findOne({'id_form': currentWhitelistInstance?.id_form}) : await this.metadataService.create(createWhitelistDto.metadata);
-    
-    const bsnInstances = createWhitelistDto.bundleList.map(async (b) => {
-      const bundleInstanceId = (await this.bundleService.findOne({ "bundle": b.bundle }))?.id;
-      const nameInstanceId = (await this.nameService.findOne({ "name": b.name }))?.id;
-      const storeInstanceId = (await this.storeService.findOne({ "store": b.store }))?.id;
-      //If some value inside bundleList is not valid or not found, return an error.
-      if(!nameInstanceId) throw new Error("Name not found")
-      if(!bundleInstanceId) throw new Error("Bundle not found")
-      if(!storeInstanceId) throw new Error("Store url not found")
-      const storeNameInstanceId = (await this.storeNameService.findBy({ "applicationStoreId": storeInstanceId, "applicationNameId": nameInstanceId }))[0].sn_id
-      return this.bundleStoreNameService.findBy({
-        [Op.and]: [
-          { 'applicationBundleId': bundleInstanceId },
-          { 'storeNameId': storeNameInstanceId }
-        ],
-      });
-    })
-    if (bsnInstances) {
-      //TODO: Handle empty bundleList to save an empty whitelist. If empty, references to every bundle...
-      bsnInstances.map(async (bsnInstance) => {
-        try {
-          const bsn = (await bsnInstance)[0]
+      await Promise.all(bsnInstances.map(async (bsnInstance) => {
+        console.log(bsnInstance);
+          const bsn = bsnInstance
           const currentBundle = await this.whitelistsRepository.findOne({ where: { "aid_id": supplyAidInstance.id, "bsn_id": bsn.bsn_id } })
           const res = currentBundle || await this.whitelistsRepository.create({
             aid_id: supplyAidInstance.id,
@@ -62,14 +65,7 @@ export class WhitelistsService {
             id_form: metadataInstance.id_form ?? null
           });
           return res;
-        } catch (error) {
-          console.log(error)
-        }
-      })
-
-    } else {
-      throw new Error("This combination doesn't exists");
-    }
+      }));
   }
 
   async createWlFromFileData(createWhitelistDto: any) {
@@ -155,7 +151,8 @@ export class WhitelistsService {
         maximum: response['aid_form.maximum'],
         type: response['aid_form.type'],
         optimized: response['aid_form.optimized'],
-        whitelisted: response['aid_form.whitelisted']
+        notes: response['aid_form.notes'],
+        enabled: response['aid_form.enabled']
       }
       response['bundleList'] = bundleList
 
@@ -166,14 +163,15 @@ export class WhitelistsService {
       delete (response['bundleStoreName.storeName.applicationStore.id'])
       delete (response['bundleStoreName.storeName.applicationStore.store'])
       delete (response['supplyAid.aid'])
-      delete (response['aid_form.createdAt'])
+      delete (response['aid_form.crea tedAt'])
       delete (response['aid_form.id_form'])
       delete (response['aid_form.tag'])
       delete (response['aid_form.minimum'])
       delete (response['aid_form.maximum'])
       delete (response['aid_form.type'])
       delete (response['aid_form.optimized'])
-      delete (response['aid_form.whitelisted'])
+      delete (response['aid_form.enabled'])
+      delete (response['aid_form.notes'])
       delete (response['aid_form.createdAt'])
       delete (response['aid_form.updatedAt'])
 

@@ -15,7 +15,7 @@ export class CreateWhitelistDto {
 
     @ValidateNested({each: true})
     @Type(()=> Bundle)
-    bundleList: Bundle[];
+    bundleList: Bundle[] | null;
 
     metadata: WhitelistMetadata;
 }
