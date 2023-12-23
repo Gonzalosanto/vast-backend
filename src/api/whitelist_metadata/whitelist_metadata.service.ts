@@ -30,7 +30,7 @@ export class WhitelistMetadataService {
     return `This action updates a #${id} aidForm`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} aidForm`;
+  async remove(id: number) {
+    return this.whitelistMetadataRepository.destroy({where: {'id': id}});
   }
 }
