@@ -133,11 +133,11 @@ export class WhitelistsService {
     return `This action updates a #${id} whitelist`;
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} whitelist`;
-  }
-  async removeAll() {
-    return `This action removes bundles in whitelist`;
+  async remove(aid: number) {
+    const supplyAidID = await this.supplyAidService.findOne({'aid': aid})
+    const whitelistToDestroy = await this.whitelistsRepository.findOne({where: {'aid_id': supplyAidID.id}})
+    await this.metadataService.remove(whitelistToDestroy.id_form)
+    return this.whitelistsRepository.destroy({where: {'aid_id': supplyAidID.id}});
   }
 
   transformWhitelistResponse(whitelist: any, bundleList: Array<any>) {
