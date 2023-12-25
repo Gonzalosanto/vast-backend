@@ -14,6 +14,9 @@ export class WhitelistMetadata extends Model {
     declare minimum: number;
 
     @Column
+    declare whitelisted: boolean;
+
+    @Column
     declare maximum: number;
 
     @Column

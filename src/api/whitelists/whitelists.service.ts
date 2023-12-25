@@ -30,33 +30,41 @@ export class WhitelistsService {
 
   async create(createWhitelistDto: CreateWhitelistDto) {
     let bsnInstances = [];
-    if(createWhitelistDto.bundleList.length === 0){
+    if (createWhitelistDto.bundleList.length === 0) {
       bsnInstances = await this.bundleStoreNameService.findAll();
-    }else{
-       bsnInstances = await Promise.all(createWhitelistDto.bundleList.map(async (b,i) => {
+    } else {
+      const errors = [];
+      bsnInstances = await Promise.all(createWhitelistDto.bundleList.map(async (b, i) => {
         const bundleInstanceId = (await this.bundleService.findOne({ "bundle": b.bundle }))?.id;
         const nameInstanceId = (await this.nameService.findOne({ "name": b.name }))?.id;
         const storeInstanceId = (await this.storeService.findOne({ "store": b.store }))?.id;
-        if(!bundleInstanceId)throw new BadRequestException("Combination "+ (i+1)+" has this error:"+ " Bundle not found "+ b.bundle) 
-        if(!nameInstanceId) throw new BadRequestException("Combination "+ (i+1)+" has this error:"+ " Name not found "+ b.name) 
-        if(!storeInstanceId)throw new BadRequestException("Combination "+ (i+1)+" has this error:"+ "Store "+ b.store)
 
-        const storeNameInstanceId = (await this.storeNameService.findBy({ "applicationStoreId": storeInstanceId, "applicationNameId": nameInstanceId }))[0].sn_id
-        return this.bundleStoreNameService.findBy({
+        if (!bundleInstanceId || !nameInstanceId || !storeInstanceId) {
+          errors.push("Combination " + (i + 1) + " doesn't exist");
+          console.log(errors)
+          return null;
+        }
+        const storeNameInstanceId = (await this.storeNameService.findBy({ "applicationStoreId": storeInstanceId, "applicationNameId": nameInstanceId }))[0].sn_id;
+        return (await this.bundleStoreNameService.findBy({
           [Op.and]: [
             { 'applicationBundleId': bundleInstanceId },
             { 'storeNameId': storeNameInstanceId }
           ],
-        })[0];
+        }))[0];
       }));
-    } 
+      const filteredInstances = bsnInstances.filter(instance => instance !== null);
+      if (errors.length > 0) {
+        throw new BadRequestException(errors.join('\n'));
+      }
+      bsnInstances = filteredInstances;
+    }
     const existingSupplyAid = await this.supplyAidService.findOne({ aid: createWhitelistDto.supply_aid });
     const supplyAidInstance = existingSupplyAid ?? (await this.supplyAidService.create({ supply_aid: createWhitelistDto.supply_aid }));
 
     const currentWhitelistInstance = await this.findOne({'aid_id': supplyAidInstance.id}, {raw: true});
-    const metadataInstance = currentWhitelistInstance ? await this.metadataService.findOne({'id_form': currentWhitelistInstance?.id_form}) : await this.metadataService.create(createWhitelistDto.metadata);
+    const metadataInstance = currentWhitelistInstance ? await 
+    this.metadataService.findOne({'id_form': currentWhitelistInstance?.id_form}) : await this.metadataService.create(createWhitelistDto.metadata);
       await Promise.all(bsnInstances.map(async (bsnInstance) => {
-        console.log(bsnInstance);
           const bsn = bsnInstance
           const currentBundle = await this.whitelistsRepository.findOne({ where: { "aid_id": supplyAidInstance.id, "bsn_id": bsn.bsn_id } })
           const res = currentBundle || await this.whitelistsRepository.create({
@@ -136,62 +144,51 @@ export class WhitelistsService {
   async remove(id: number) {
     return `This action removes a #${id} whitelist`;
   }
-  async removeAll() {
-    return `This action removes bundles in whitelist`;
-  }
 
   transformWhitelistResponse(whitelist: any, bundleList: Array<any>) {
     const transformObject = (response: any, bundleList: any) => {
-
       response['supply_aid'] = response['supplyAid.aid']
       response['metadata'] = {
         id: response['aid_form.id_form'],
         tag: response['aid_form.tag'],
         minimum: response['aid_form.minimum'],
         maximum: response['aid_form.maximum'],
+        whitelisted: response['aid_form.whitelisted'],
         type: response['aid_form.type'],
         optimized: response['aid_form.optimized'],
         notes: response['aid_form.notes'],
         enabled: response['aid_form.enabled']
       }
-      response['bundleList'] = bundleList
+      response['bundleList'] = response['aid_form.whitelisted'] === 0 ? [] : bundleList;
 
-      delete (response['bundleStoreName.applicationBundle.id'])
-      delete (response['bundleStoreName.applicationBundle.bundle'])
-      delete (response['bundleStoreName.storeName.applicationName.id'])
-      delete (response['bundleStoreName.storeName.applicationName.name'])
-      delete (response['bundleStoreName.storeName.applicationStore.id'])
-      delete (response['bundleStoreName.storeName.applicationStore.store'])
-      delete (response['supplyAid.aid'])
-      delete (response['aid_form.crea tedAt'])
-      delete (response['aid_form.id_form'])
-      delete (response['aid_form.tag'])
-      delete (response['aid_form.minimum'])
-      delete (response['aid_form.maximum'])
-      delete (response['aid_form.type'])
-      delete (response['aid_form.optimized'])
-      delete (response['aid_form.enabled'])
-      delete (response['aid_form.notes'])
-      delete (response['aid_form.createdAt'])
-      delete (response['aid_form.updatedAt'])
-
-      return response
+      const propertiesToDelete = [
+        'bundleStoreName.applicationBundle.bundle',
+        'bundleStoreName.storeName.applicationStore.store',
+        'bundleStoreName.storeName.applicationName.name',
+        'supplyAid.aid',
+        'aid_form.createdAt',
+        'aid_form.updatedAt',
+        'aid_form.id_form',
+        'aid_form.whitelisted',
+        'aid_form.tag',
+        'aid_form.minimum',
+        'aid_form.maximum',
+        'aid_form.type',
+        'aid_form.optimized',
+        'aid_form.enabled',
+        'aid_form.notes',
+        'bundleStoreName.applicationBundle.id',
+        'bundleStoreName.storeName.applicationStore.id',
+        'bundleStoreName.storeName.applicationName.id'
+      ];
+      propertiesToDelete.forEach(property => delete response[property]);
+      return response;
     }
     bundleList = whitelist.map((wl: any) => {
       return ({
-        bundle:
-        {
-          id: wl['bundleStoreName.applicationBundle.id'],
-          bundle: wl['bundleStoreName.applicationBundle.bundle']
-        },
-        store: {
-          id: wl['bundleStoreName.storeName.applicationStore.id'],
-          store: wl['bundleStoreName.storeName.applicationStore.store']
-        },
-        name: {
-          id: wl["bundleStoreName.storeName.applicationName.id"],
+          bundle: wl['bundleStoreName.applicationBundle.bundle'],
+          store: wl['bundleStoreName.storeName.applicationStore.store'],
           name: wl["bundleStoreName.storeName.applicationName.name"]
-        }
       })
     })
     bundleList = this.filterBy(bundleList, 'bundle')
