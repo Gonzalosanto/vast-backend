@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Report } from './entities/report.entity';
 import { SupplyAid } from '../../main/aids/entities/supply-aid.entity';
 import { DemandAid } from '../../main/aids/entities/demand-aid.entity';
+import { CreateReportDto } from './dto/create_report.dto'
 import { applicationBundle } from '../../main/bundles/entities/bundles.entity';
 import { BundleStoreName } from '../../main/bundle-store-names/entities/bundle-store-name.entity';
 
@@ -12,8 +13,14 @@ export class ReportsService {
     @Inject('SUPPLY_REPOSITORY') private supplyRepository: typeof SupplyAid,
     @Inject('DEMAND_REPOSITORY') private demandRepository: typeof DemandAid,
   ) {}
-  async create(createReportsDto: any) {
-    return createReportsDto;
+  async create(createReportsDto: CreateReportDto) {
+    const currentReportWithExistingSupplyAid =await this.reportRepository.findOne({where: {'supply_aid': createReportsDto.supply_aid}})
+    if(currentReportWithExistingSupplyAid){
+      currentReportWithExistingSupplyAid.requests += 1;
+      currentReportWithExistingSupplyAid.impressions += createReportsDto.impressions;
+      //currentReportWithExistingSupplyAid.demandAid = createReportsDto.demand_aid; //CHECK DATA TYPE
+    }
+    return this.reportRepository.create({currentReportWithExistingSupplyAid});
   }
 
   async findAll(): Promise<Report[]> {
@@ -38,13 +45,9 @@ export class ReportsService {
           model: DemandAid,
           attributes: ['aid'],
         },
-      ],
+      ], raw: true
     });
     return results;
-  }
-
-  async findOne(where: any, options: any) {
-    return this.reportRepository.findAll({ where: where, ...options });
   }
 
   async update(body: Report, options: any): Promise<any> {
