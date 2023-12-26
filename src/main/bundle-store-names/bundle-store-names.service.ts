@@ -107,8 +107,8 @@ export class BundleStoreNamesService {
     return this.bundleStoreNameRepository.findAll({where: where, ...options});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} bundleStoreName`;
+  async findOne(id: number) {
+    return this.bundleStoreNameRepository.findOne({where: {'id': id}});
   }
 
   update(id: number, updateBundleStoreNameDto: UpdateBundleStoreNameDto) {
