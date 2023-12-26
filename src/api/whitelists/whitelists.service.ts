@@ -129,8 +129,37 @@ export class WhitelistsService {
     return this.whitelistsRepository.findOne({ where: condition, ...options });
   }
 
-  async update(id: number, updateWhitelistDto: UpdateWhitelistDto) {
-    return `This action updates a #${id} whitelist`;
+  async update(aid: number, updateWhitelistDto: UpdateWhitelistDto) {
+    let errors = [];
+    async function validateBundleList(list: Array<any>){
+      const isValidList = list.reduce( async (accumulator:any, elem: any) => {
+        const foundBundle = await this.bundleService.findOne({'bundle': elem.bundle});
+        const foundName = await this.nameService.findOne({'name': elem.name});
+        const foundStore = await this.storeService.findOne({'store': elem.store});
+        return accumulator && (foundBundle != null && foundName != null && foundStore != null)
+      }, true)
+      return isValidList;
+    }
+    if(updateWhitelistDto.bundleList == undefined || updateWhitelistDto.bundleList.length == 0) throw new BadRequestException({message:"Could not update any values", type: "ERROR"});
+    //If bundleList is empty whitelisted = false _> update to every bundleNameStore 
+    const aid_id = (await this.supplyAidService.findOne({"aid":aid}))?.id;
+    if(!aid_id) throw new BadRequestException({message: "Invalid parameter value", type: "ERROR"})
+    const existingWhitelist = await this.findAllByAid({'aid_id': aid_id});
+    const isValidBundleList = await validateBundleList(updateWhitelistDto.bundleList)
+    if(!isValidBundleList) throw new BadRequestException(errors)
+
+    if(!existingWhitelist[0].metadata.whitelisted){console.log('Removes current whitelist to add a new whitelist')}
+    this.whitelistsRepository.create()
+    //MISSING VALUES: selected items to update
+    updateWhitelistDto.bundleList.forEach(async (bundle) => {
+      console.log(bundle)
+      //const bsn_id = this.bundleStoreName.findOne(bsn_id:bundle.id).id
+      //return this.whitelistsRepository.update({'bsn_id' : 1}, {where: {'bsn_id': previous_bsn_id}}) //Look up by old value
+    })
+    await this.metadataService.update(existingWhitelist[0].metadata, updateWhitelistDto.metadata);
+    //If whitelisted, remove every old bsn reference, change isWhitelisted to true, add new bundleList
+    
+    return "kajsdhjkasd";
   }
 
   async remove(aid: number) {
@@ -152,6 +181,7 @@ export class WhitelistsService {
         type: response['aid_form.type'],
         optimized: response['aid_form.optimized'],
         notes: response['aid_form.notes'],
+        whitelisted: response["aid_form.whitelisted"],
         enabled: response['aid_form.enabled']
       }
       response['bundleList'] = bundleList
@@ -174,24 +204,15 @@ export class WhitelistsService {
       delete (response['aid_form.notes'])
       delete (response['aid_form.createdAt'])
       delete (response['aid_form.updatedAt'])
+      delete(response["aid_form.whitelisted"])
 
       return response
     }
     bundleList = whitelist.map((wl: any) => {
       return ({
-        bundle:
-        {
-          id: wl['bundleStoreName.applicationBundle.id'],
-          bundle: wl['bundleStoreName.applicationBundle.bundle']
-        },
-        store: {
-          id: wl['bundleStoreName.storeName.applicationStore.id'],
-          store: wl['bundleStoreName.storeName.applicationStore.store']
-        },
-        name: {
-          id: wl["bundleStoreName.storeName.applicationName.id"],
-          name: wl["bundleStoreName.storeName.applicationName.name"]
-        }
+        bundle: wl['bundleStoreName.applicationBundle.bundle'],
+        store: wl['bundleStoreName.storeName.applicationStore.store'],
+        name: wl["bundleStoreName.storeName.applicationName.name"]
       })
     })
     bundleList = this.filterBy(bundleList, 'bundle')
