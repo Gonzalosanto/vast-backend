@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { Report } from './entities/report.entity';
+import { CreateReportDto } from './dto/create_report.dto';
 
 @Controller('reports')
 export class ReportsController {
@@ -11,8 +12,8 @@ export class ReportsController {
   }
 
   @Post()
-  async createBundle(body: Report) {
-    return this.reportService.create(body);
+  async createBundle(createReportDto: CreateReportDto) {
+    return this.reportService.create(createReportDto);
   }
   @Put()
   async updateBundles(body: Report, options: any) {
