@@ -28,6 +28,9 @@ export class WhitelistMetadata extends Model {
     @Column
     declare enabled: boolean;
 
+    @Column
+    declare whitelisted: boolean;
+
     @HasOne(() => Whitelist)
     whitelist: Whitelist;
 }
