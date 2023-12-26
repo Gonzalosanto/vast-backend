@@ -1,17 +1,15 @@
 import { Type } from 'class-transformer';
-import {IsDataURI, IsNotEmpty, IsNumberString, IsPositive, IsString, IsUrl, Length, ValidateNested} from 'class-validator';
+import {IsDataURI, IsNotEmpty, IsNumber, IsPositive, IsString, IsUrl, Length, ValidateNested, isNumber} from 'class-validator';
 import { WhitelistMetadata } from 'src/api/whitelist_metadata/entities/whitelist_metadata.entity';
 export class CreateWhitelistDto {
     @IsNotEmpty()
-    @IsNumberString()
+    @IsNumber()
     @IsPositive()
     @Length(4,6)
-    supply_aid: string;
+    supply_aid: number;
 
-    @IsNotEmpty()
-    @IsNumberString()
-    @IsPositive()
-    bsn_id: string;
+    @IsNumber()
+    bsn_id: number | null;
 
     @ValidateNested({each: true})
     @Type(()=> Bundle)
