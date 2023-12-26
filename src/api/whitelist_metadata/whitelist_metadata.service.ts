@@ -26,8 +26,8 @@ export class WhitelistMetadataService {
     return this.whitelistMetadataRepository.findOne({where, ...options});
   }
 
-  update(id: number, updateAidFormDto: UpdateAidFormDto) {
-    return `This action updates a #${id} aidForm`;
+  async update(id: number, updateAidFormDto: UpdateAidFormDto) {
+    return this.whitelistMetadataRepository.update(updateAidFormDto, { where : {'id': id}});
   }
 
   async remove(id: number) {
