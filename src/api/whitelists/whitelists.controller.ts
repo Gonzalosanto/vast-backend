@@ -22,19 +22,14 @@ export class WhitelistsController {
       return this.whitelistsService.findAllByAid({'aid_id': supply_aid});
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWhitelistDto: UpdateWhitelistDto) {
-    return this.whitelistsService.update(+id, updateWhitelistDto);
+  @Patch(':aid')
+  update(@Param('aid') aid: number, @Body() updateWhitelistDto: UpdateWhitelistDto) {
+    return this.whitelistsService.update(+aid, updateWhitelistDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.whitelistsService.remove(+id);
-  }
-
-  @Delete()
-  removeAll() {
-    return this.whitelistsService.removeAll();
   }
 
 }
