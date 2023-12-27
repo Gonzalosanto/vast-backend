@@ -27,10 +27,10 @@ export class WhitelistMetadataService {
   }
 
   async update(id: number, updateAidFormDto: UpdateAidFormDto) {
-    return this.whitelistMetadataRepository.update(updateAidFormDto, { where : {'id': id}});
+    return this.whitelistMetadataRepository.update(updateAidFormDto, { where : {'id_form': id}});
   }
 
   async remove(id: number) {
-    return this.whitelistMetadataRepository.destroy({where: {'id': id}});
+    return this.whitelistMetadataRepository.destroy({where: {'id_form': id}});
   }
 }

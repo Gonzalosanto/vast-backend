@@ -31,6 +31,6 @@ export class WhitelistMetadata extends Model {
     @Column
     declare whitelisted: boolean;
 
-    @HasOne(() => Whitelist)
+    @HasOne(() => Whitelist, {onDelete: "SET NULL", onUpdate: "CASCADE"})
     whitelist: Whitelist;
 }

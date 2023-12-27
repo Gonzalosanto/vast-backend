@@ -61,19 +61,19 @@ export class WhitelistsService {
     const existingSupplyAid = await this.supplyAidService.findOne({ aid: createWhitelistDto.supply_aid });
     const supplyAidInstance = existingSupplyAid ?? (await this.supplyAidService.create({ supply_aid: createWhitelistDto.supply_aid }));
 
-    const currentWhitelistInstance = await this.findOne({'aid_id': supplyAidInstance.id}, {raw: true});
-    const metadataInstance = currentWhitelistInstance ? await 
-    this.metadataService.findOne({'id_form': currentWhitelistInstance?.id_form}) : await this.metadataService.create(createWhitelistDto.metadata);
-      await Promise.all(bsnInstances.map(async (bsnInstance) => {
-          const bsn = bsnInstance
-          const currentBundle = await this.whitelistsRepository.findOne({ where: { "aid_id": supplyAidInstance.id, "bsn_id": bsn.bsn_id } })
-          const res = currentBundle || await this.whitelistsRepository.create({
-            aid_id: supplyAidInstance.id,
-            bsn_id: bsn.bsn_id,
-            id_form: metadataInstance.id_form ?? null
-          });
-          return res;
-      }));
+    const currentWhitelistInstance = await this.findOne({ 'aid_id': supplyAidInstance.id }, { raw: true });
+    const metadataInstance = currentWhitelistInstance ? await
+      this.metadataService.findOne({ 'id_form': currentWhitelistInstance?.id_form }) : await this.metadataService.create(createWhitelistDto.metadata);
+    await Promise.all(bsnInstances.map(async (bsnInstance) => {
+      const bsn = bsnInstance
+      const currentBundle = await this.whitelistsRepository.findOne({ where: { "aid_id": supplyAidInstance.id, "bsn_id": bsn.bsn_id } })
+      const res = currentBundle || await this.whitelistsRepository.create({
+        aid_id: supplyAidInstance.id,
+        bsn_id: bsn.bsn_id,
+        id_form: metadataInstance.id_form ?? null
+      });
+      return res;
+    }));
   }
 
   async createWlFromFileData(createWhitelistDto: any) {
@@ -94,7 +94,7 @@ export class WhitelistsService {
         const result = await this.findAllByAid({ 'aid_id': aid.id });
         return result[0];
       });
-      return (await Promise.all(whitelists)).filter(wl => {return wl != null });
+      return (await Promise.all(whitelists)).filter(wl => { return wl != null });
     } catch (error) {
       throw new Error("Error while searching data. Value may not exist " + error);
     }
@@ -125,7 +125,7 @@ export class WhitelistsService {
       return this.transformWhitelistResponse(whitelist, bundleList)
     } catch (error) {
       console.log(error)
-      throw new InternalServerErrorException({msg: 'Error processing request. Data may be invalid'})
+      throw new InternalServerErrorException({ msg: 'Error processing request. Data may be invalid' })
     }
   }
 
@@ -139,42 +139,43 @@ export class WhitelistsService {
 
   async update(aid: number, updateWhitelistDto: UpdateWhitelistDto) {
     let errors = [];
-    async function validateBundleList(list: Array<any>){
-      const isValidList = list.reduce( async (accumulator:any, elem: any) => {
-        const foundBundle = await this.bundleService.findOne({'bundle': elem.bundle});
-        const foundName = await this.nameService.findOne({'name': elem.name});
-        const foundStore = await this.storeService.findOne({'store': elem.store});
+    async function validateBundleList(list: Array<any>, context: WhitelistsService) {
+      const isValidList = list.reduce(async (accumulator: any, elem: any) => {
+        const foundBundle = await context.bundleService.findOne({ 'bundle': elem.bundle });
+        const foundName = await context.nameService.findOne({ 'name': elem.name });
+        const foundStore = await context.storeService.findOne({ 'store': elem.store });
+        if (foundBundle == null || foundName == null || foundStore == null) errors.push(elem);
         return accumulator && (foundBundle != null && foundName != null && foundStore != null)
       }, true)
       return isValidList;
     }
-    if(updateWhitelistDto.bundleList == undefined || updateWhitelistDto.bundleList.length == 0) throw new BadRequestException({message:"Could not update any values", type: "ERROR"});
+    if (updateWhitelistDto.bundleList == undefined) throw new BadRequestException({ message: "Could not update any values", type: "ERROR" });
     //If bundleList is empty whitelisted = false _> update to every bundleNameStore 
-    const aid_id = (await this.supplyAidService.findOne({"aid":aid}))?.id;
-    if(!aid_id) throw new BadRequestException({message: "Invalid parameter value", type: "ERROR"})
-    const existingWhitelist = await this.findAllByAid({'aid_id': aid_id});
-    const isValidBundleList = await validateBundleList(updateWhitelistDto.bundleList)
-    if(!isValidBundleList) throw new BadRequestException(errors)
+    const aid_id = (await this.supplyAidService.findOne({ "aid": aid }))?.id;
+    if (!aid_id) throw new BadRequestException({ message: "Invalid parameter value", type: "ERROR" })
+    const existingWhitelist = await this.findAllByAid({ 'aid_id': aid_id });
+    const isValidBundleList = await validateBundleList(updateWhitelistDto.bundleList, this)
+    if (!isValidBundleList) throw new BadRequestException(errors)
+    if(!existingWhitelist) throw new InternalServerErrorException()
+    //if (!existingWhitelist[0].metadata.whitelisted && updateWhitelistDto.bundleList.length > 0) {await this.remove(aid)}
 
-    if(!existingWhitelist[0].metadata.whitelisted){console.log('Removes current whitelist to add a new whitelist')}
-    this.whitelistsRepository.create()
-    //MISSING VALUES: selected items to update
-    updateWhitelistDto.bundleList.forEach(async (bundle) => {
-      console.log(bundle)
-      //const bsn_id = this.bundleStoreName.findOne(bsn_id:bundle.id).id
-      //return this.whitelistsRepository.update({'bsn_id' : 1}, {where: {'bsn_id': previous_bsn_id}}) //Look up by old value
-    })
-    await this.metadataService.update(existingWhitelist[0].metadata, updateWhitelistDto.metadata);
+    await this.remove(aid)
+    // console.log({supply_aid : aid, bundleList:updateWhitelistDto.bundleList, metadata: updateWhitelistDto.metadata})
+    if (updateWhitelistDto.bundleList.length === 0) updateWhitelistDto.metadata.whitelisted = false;
+    console.log(updateWhitelistDto)
+    await this.create({ supply_aid: aid, bundleList: updateWhitelistDto.bundleList, metadata: updateWhitelistDto.metadata });
     //If whitelisted, remove every old bsn reference, change isWhitelisted to true, add new bundleList
-    
-    return "kajsdhjkasd";
+
+    return "Values are updating...";
   }
 
   async remove(aid: number) {
-    const supplyAidID = await this.supplyAidService.findOne({'aid': aid})
-    const whitelistToDestroy = await this.whitelistsRepository.findOne({where: {'aid_id': supplyAidID.id}})
+    const supplyAidID = await this.supplyAidService.findOne({ 'aid': aid })
+    const whitelistToDestroy = await this.whitelistsRepository.findOne({ where: { 'aid_id': supplyAidID.id } })
+    if(!whitelistToDestroy) throw new BadRequestException({message: "Unexistent whitelist", type: "ERROR"})
+    await this.whitelistsRepository.destroy({ where: { 'aid_id': supplyAidID.id } });
     await this.metadataService.remove(whitelistToDestroy.id_form)
-    return this.whitelistsRepository.destroy({where: {'aid_id': supplyAidID.id}});
+    return {message: "Whitelist deleted!"}
   }
 
   transformWhitelistResponse(whitelist: any, bundleList: Array<any>) {
@@ -218,9 +219,9 @@ export class WhitelistsService {
     }
     bundleList = whitelist.map((wl: any) => {
       return ({
-          bundle: wl['bundleStoreName.applicationBundle.bundle'],
-          store: wl['bundleStoreName.storeName.applicationStore.store'],
-          name: wl["bundleStoreName.storeName.applicationName.name"]
+        bundle: wl['bundleStoreName.applicationBundle.bundle'],
+        store: wl['bundleStoreName.storeName.applicationStore.store'],
+        name: wl["bundleStoreName.storeName.applicationName.name"]
       })
     })
     bundleList = this.filterBy(bundleList, 'bundle')

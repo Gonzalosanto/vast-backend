@@ -9,7 +9,7 @@ export class CreateWhitelistDto {
     supply_aid: number;
 
     @IsNumber()
-    bsn_id: number | null;
+    bsn_id?: number | null;
 
     @ValidateNested({each: true})
     @Type(()=> Bundle)
