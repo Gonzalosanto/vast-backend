@@ -5,7 +5,4 @@ export class SupplyAid extends Model {
   @Column
   declare aid: number;
 
-  @HasMany(() => Whitelist)
-  wl_id: number
-
 }

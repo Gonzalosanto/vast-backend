@@ -33,6 +33,6 @@ export class Whitelist extends Model {
   @BelongsTo(() => BundleStoreName, {onDelete: 'NO ACTION', onUpdate: 'NO ACTION'})
   bundleStoreName: BundleStoreName;
 
-  @BelongsTo(() => WhitelistMetadata, {onDelete:'NO ACTION', onUpdate:'NO ACTION'})
+  @BelongsTo(() => WhitelistMetadata, {onDelete:'NO ACTION', onUpdate:'CASCADE'})
   aid_form: WhitelistMetadata;   
 }
