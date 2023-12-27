@@ -10,7 +10,9 @@ export class UrlProducerService implements OnModuleInit {
         private producerService: ProducerService){}
     
     onModuleInit() {
-        this.produceURLs()
+        setInterval(()=>{
+            this.produceURLs()
+        },250)
     }
     async createURLs(){
         const macrosByAID = await this.macrosService.getMacros();
