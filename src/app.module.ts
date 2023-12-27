@@ -9,6 +9,7 @@ import { WhitelistsModule } from './api/whitelists/whitelists.module';
 import { KafkaModule } from './main/kafka/kafka.module';
 import { UrlProducerService } from './main/url-producer/url-producer.service';
 import { UserAgentsModule } from './main/user-agents/user-agents.module';
+import { ReportConsumer } from './main/reports-consumer/reports-consumer.service';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { UserAgentsModule } from './main/user-agents/user-agents.module';
     KafkaModule
   ],
   controllers: [UsersController],
-  providers: [UsersService,  UrlProducerService],
+  providers: [UsersService, UrlProducerService, ReportConsumer],
 })
 export class AppModule {}
