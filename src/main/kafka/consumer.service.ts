@@ -1,8 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ReportsService } from 'src/api/reports/reports.service';
 import { Kafka } from 'kafkajs';
 @Injectable()
-export class ConsumerService implements OnModuleInit {
-    private instance: ConsumerService;
+export class ConsumerService {
+    static instance: ConsumerService;
     private _isConnected = false;
     private kafkaClient: any = new Kafka({
         clientId: 'main-client',
@@ -10,30 +11,24 @@ export class ConsumerService implements OnModuleInit {
     })
     private consumer: any = this.kafkaClient.consumer({ groupId: 'main-group' });
 
-    async onModuleInit() {
-        try {
-            //await this.handleReportsSubscription()
-        } catch (error) {
-            console.log('Could not establish any connection')
+    public async getInstance() {
+        if (!ConsumerService.instance._isConnected) {
+            await ConsumerService.instance.start()
+            return ConsumerService.instance;
         }
-
+        return ConsumerService.instance;
     }
 
-    public getInstance(): ConsumerService {
-        if (!this.instance._isConnected) {
-            return new ConsumerService();
-        }
-        return this.instance;
-    }
-
-    async handleReportsSubscription() {
-        this.start()
-        await this.consumer.subscribe({ topics: [process.env.KAFKA_TOPIC_REPORTS], fromBeginning: true })
+    async handleReportsSubscription(reportHandler: any) {
+        const instance = await this.getInstance()
+        await instance.consumer.subscribe({ topics: [process.env.KAFKA_TOPIC_REPORTS], fromBeginning: true })
         try {
             await this.consumer.run({
                 eachMessage: async ({
                     topic, partition, message, heartbeat, pause
                 }) => {
+                    await heartbeat();
+                    await reportHandler(message);
                     return message;
                 }
             })
@@ -44,15 +39,15 @@ export class ConsumerService implements OnModuleInit {
 
     async start() {
         try {
-            await this.consumer.connect()
-            this._isConnected = true;
+            await ConsumerService.instance.consumer.connect();
+            ConsumerService.instance._isConnected = true;
         } catch (error) {
             console.log(error)
         }
     }
 
     async shutdown() {
-        await this.consumer.disconnect()
-        this._isConnected = false;
+        await ConsumerService.instance.consumer.disconnect()
+        ConsumerService.instance._isConnected = false;
     }
 }
