@@ -1,53 +1,49 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ReportsService } from 'src/api/reports/reports.service';
-import { Kafka } from 'kafkajs';
+import { Injectable } from '@nestjs/common';
+import { Consumer, Kafka } from 'kafkajs';
 @Injectable()
 export class ConsumerService {
-    static instance: ConsumerService;
-    private _isConnected = false;
-    private kafkaClient: any = new Kafka({
+    private kafkaClient = new Kafka({
         clientId: 'main-client',
         brokers: [`${process.env.KAFKA_SERVER}:${process.env.KAFKA_PORT}`]
-    })
-    private consumer: any = this.kafkaClient.consumer({ groupId: 'main-group' });
-
-    public async getInstance() {
-        if (!ConsumerService.instance._isConnected) {
-            await ConsumerService.instance.start()
-            return ConsumerService.instance;
-        }
-        return ConsumerService.instance;
-    }
+    })    
+    private consumer : Consumer = this.kafkaClient.consumer({ groupId: 'main-group'})
+    static instance: null | ConsumerService = null;
+    private _isConnected = false;
+    constructor(){}
 
     async handleReportsSubscription(reportHandler: any) {
-        const instance = await this.getInstance()
-        await instance.consumer.subscribe({ topics: [process.env.KAFKA_TOPIC_REPORTS], fromBeginning: true })
         try {
-            await this.consumer.run({
-                eachMessage: async ({
-                    topic, partition, message, heartbeat, pause
-                }) => {
-                    await heartbeat();
-                    await reportHandler(message);
-                    return message;
+            const instance = await ConsumerService.getInstance();
+            await instance.consumer.connect()
+            await instance.consumer.subscribe({ topics: [process.env.KAFKA_TOPIC_REPORTS], fromBeginning: true })
+            await instance.consumer.run({
+                eachMessage: async ({message, heartbeat}) => {
+                    await heartbeat()
+                    reportHandler(message.value.toString())
                 }
             })
         } catch (error) {
             console.log(error)
         }
     }
+    static async getInstance() {
+        if (!this.instance || !this.instance._isConnected) {
+            return (this.instance = new ConsumerService());
+        }
+        return this.instance;
+    }
 
     async start() {
         try {
-            await ConsumerService.instance.consumer.connect();
-            ConsumerService.instance._isConnected = true;
+            await this.consumer.connect();
+            this._isConnected = true;
         } catch (error) {
             console.log(error)
         }
     }
 
     async shutdown() {
-        await ConsumerService.instance.consumer.disconnect()
+        await this.consumer.disconnect()
         ConsumerService.instance._isConnected = false;
     }
 }
