@@ -1,4 +1,4 @@
-import { Column, HasOne, Model, Table } from "sequelize-typescript";
+import { Column, DataType, HasOne, Length, Model, Table } from "sequelize-typescript";
 import { Whitelist } from "src/api/whitelists/entities/whitelist.entity";
 
 @Table
@@ -7,7 +7,7 @@ export class WhitelistMetadata extends Model {
     @Column({ autoIncrement: true, primaryKey: true })
     declare id_form: number;
 
-    @Column
+    @Column({type:DataType.STRING(511)})
     declare tag: string;
 
     @Column

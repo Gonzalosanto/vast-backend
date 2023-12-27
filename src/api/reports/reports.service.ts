@@ -41,7 +41,7 @@ export class ReportsService {
       include: [
         {
           model: BundleStoreName,
-          attributes: ['applicationBundleId'],
+          attributes: [],
           include: [
             {
               model: applicationBundle,
