@@ -5,17 +5,17 @@ import { BundleStoreName } from "src/main/bundle-store-names/entities/bundle-sto
 @Table
 export class Report extends Model {
     @Column
-    requests: number;
+    declare requests: number;
 
     @Column
-    impressions: number;
+    declare impressions: number;
 
     @ForeignKey(()=> BundleStoreName)
     @Column
-    bundle: number;
+    declare bundle: number;
 
     @Column
-    lastTime: Date;
+    declare lastTime: Date;
 
     @BelongsTo(()=> BundleStoreName)
     bundleStoreName: BundleStoreName;
@@ -28,9 +28,9 @@ export class Report extends Model {
 
     @ForeignKey(()=> SupplyAid)
     @Column
-    supply_aid: number;
+    declare supply_aid: number;
 
     @ForeignKey(()=> DemandAid)
     @Column
-    demand_aid: number;
+    declare demand_aid: number;
 }
