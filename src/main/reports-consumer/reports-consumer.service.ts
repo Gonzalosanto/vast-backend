@@ -10,14 +10,11 @@ export class ReportConsumer implements OnModuleInit {
         private reportsService: ReportsService,
         private consumerService: ConsumerService){}
     
-    onModuleInit() {
-        this.consumerService.handleReportsSubscription((msg: any)=>{
-            console.log(msg)
-        })
+    async onModuleInit() {
+        await this.consumerService.handleReportsSubscription((message: any)=>{console.log(message)})
     }
      
-    async consumeReports(report: Report){
-        
+    async consumeReports(report: Report){        
         return this.reportsService.save(report);
     }
 }
