@@ -8,6 +8,6 @@ const dev_config =
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, dev_config);
-  await app.listen(3000);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
