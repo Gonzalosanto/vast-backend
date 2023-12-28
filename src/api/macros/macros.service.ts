@@ -34,19 +34,19 @@ export class MacrosService {
       });
     };
 
-    const wlsInstances = await this.whitelistService.getAllWhitelists();
+    const wlsInstances = await this.whitelistService.getAllEnabledWhitelists();
+    console.log(wlsInstances)
     const bundleListByAID = wlsInstances.map((wl) => {
       return { aid: wl.supply_aid, bundleList: wl.bundleList };
     });
-
     const bsnValues = bundleListByAID.flatMap((bundleList) => {
       const aid = bundleList.aid;
-      return bundleList.bundleList.map((bundles) => ({
+      return bundleList.bundleList.map((bundles: any) => {return ({
         aid: aid,
-        bundle: bundles.bundle.bundle,
-        name: bundles.name.name,
-        store: bundles.store.store,
-      }));
+        bundle: bundles.bundle,
+        name: bundles.name,
+        store: bundles.store,
+      })});
     });
 
     const res = await mixData(bsnValues);

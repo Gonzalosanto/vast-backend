@@ -5,7 +5,7 @@ import { Whitelist } from './entities/whitelist.entity';
 import { AidsService } from '../../main/aids/aids.service';
 import { BundleStoreNamesService, BundlesService, NamesService, StoreNamesService, StoreUrlsService } from '../../main/index';
 import { WhitelistMetadataService } from '../whitelist_metadata/whitelist_metadata.service';
-import { Op } from 'sequelize';
+import { FindOptions, Op } from 'sequelize';
 import { SupplyAid } from '../../main/aids/entities/supply-aid.entity';
 import { BundleStoreName } from '../../main/bundle-store-names/entities/bundle-store-name.entity';
 import { applicationBundle } from '../../main/bundles/entities/bundles.entity';
@@ -84,22 +84,65 @@ export class WhitelistsService {
     return this.whitelistsRepository.findAll(options)
   }
 
-  async getAllWhitelists(options?: any) {
+  async getAllEnabledWhitelists() {
     try {
       const distinctsAids = await this.supplyAidService.findAll({
         attributes: ['aid', 'id'],
         raw: true
       })
       const whitelists = distinctsAids.map(async (aid) => {
-        const result = await this.findAllByAid({ 'aid_id': aid.id });
+        const result = await this.findAllEnabledByAid({'aid_id': aid.id});
         return result[0];
       });
-      return (await Promise.all(whitelists)).filter(wl => { return wl != null });
+      return (await Promise.all(whitelists)).filter(wl => {return (wl != null)});
+    } catch (error) {
+      throw new Error("Error while searching data. Value may not exist " + error);
+    }
+  }
+  async getAllWhitelists() {
+    try {
+      const distinctsAids = await this.supplyAidService.findAll({
+        attributes: ['aid', 'id'],
+        raw: true
+      })
+      const whitelists = distinctsAids.map(async (aid) => {
+        const result = await this.findAllByAid({'aid_id': aid.id});
+        return result[0];
+      });
+      return (await Promise.all(whitelists)).filter(wl => {return (wl != null)});
     } catch (error) {
       throw new Error("Error while searching data. Value may not exist " + error);
     }
   }
 
+  async findAllEnabledByAid(where: any, options?: any) {
+    const bundleList = []
+    try {
+      const whitelist = await this.findBy(where,
+        {
+          include: [{
+            model: SupplyAid, attributes: ['aid']
+          }, {
+            model: BundleStoreName, attributes: [], include: [{
+              model: applicationBundle, attributes: ['bundle']
+            }, {
+              model: StoreNames, attributes: [], include: [{
+                model: applicationName, attributes: ['name'],
+              }, {
+                model: applicationStore, attributes: ['store']
+              }]
+            }]
+          }, {
+            model: WhitelistMetadata, where: {'enabled': 1}
+          }], raw: true, ...options
+        }
+      );
+      return this.transformWhitelistResponse(whitelist, bundleList)
+    } catch (error) {
+      console.log(error)
+      throw new InternalServerErrorException({ msg: 'Error processing request. Data may be invalid' })
+    }
+  }
   async findAllByAid(where: any, options?: any) {
     const bundleList = []
     try {
@@ -129,7 +172,7 @@ export class WhitelistsService {
     }
   }
 
-  async findBy(where: any, options?: any) {
+  async findBy(where: any, options?: FindOptions) {
     return this.findAll({ where: where, ...options })
   }
 
@@ -160,13 +203,9 @@ export class WhitelistsService {
     //if (!existingWhitelist[0].metadata.whitelisted && updateWhitelistDto.bundleList.length > 0) {await this.remove(aid)}
 
     await this.remove(aid)
-    // console.log({supply_aid : aid, bundleList:updateWhitelistDto.bundleList, metadata: updateWhitelistDto.metadata})
     if (updateWhitelistDto.bundleList.length === 0) updateWhitelistDto.metadata.whitelisted = false;
     console.log(updateWhitelistDto)
     await this.create({ supply_aid: aid, bundleList: updateWhitelistDto.bundleList, metadata: updateWhitelistDto.metadata });
-    //If whitelisted, remove every old bsn reference, change isWhitelisted to true, add new bundleList
-
-    return "Values are updating...";
   }
 
   async remove(aid: number) {

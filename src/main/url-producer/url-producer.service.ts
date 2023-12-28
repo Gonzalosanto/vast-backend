@@ -11,7 +11,7 @@ export class UrlProducerService implements OnModuleInit {
     
     onModuleInit() {
         try {
-            this.produceURLs()
+            setInterval(()=>this.produceURLs(),1000)            
         } catch (error) {
             console.log(error)
         }
@@ -42,7 +42,6 @@ export class UrlProducerService implements OnModuleInit {
     } 
     async produceURLs(){
         const messages = await this.formatURLsToMessages()
-        console.log(messages)
         return messages.forEach((m: any) => {
             m.value ? console.log([m]) : console.log('undefined message')
             //this.producerService.topicProducer(process.env.KAFKA_TEST_TOPIC, [m])
