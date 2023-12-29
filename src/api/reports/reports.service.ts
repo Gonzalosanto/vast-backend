@@ -59,7 +59,8 @@ export class ReportsService {
         },
       ], raw: true
     });
-    return results;
+    const filteredResultsByCondition = results.filter(r => r.impressions >10 && (r.impressions / r.requests) * 100>=0.01);
+    return filteredResultsByCondition;
   }
 
   async update(body: Report, options: any): Promise<any> {
