@@ -21,18 +21,20 @@ export class MacrosService {
   async getMacros() {
     const wlsInstances = await this.whitelistService.getAllEnabledWhitelists();
     const bundleList = wlsInstances.map((wl) => {
-      return wl.bundleList
+      return {aid: wl.supply_aid, bundle: wl.bundleList}
     });
     const res = await Promise.all(bundleList.map(async bl=> {
-      return Promise.all(bl.map( async (bundle: any) => {
+      
+      return Promise.all(bl.bundle.map( async (bundle: any) => {
         const bundleOS = await this.storeService.getOS(bundle.store)
         const ua = (await this.userAgents.getUserAgentByOS(bundleOS)).ua;
         const deviceId = (await this.devices.getRandomDevice()).deviceid;
         const uip = (await this.userIps.getRandomUip()).uip;
-        return {...bundle, ua, deviceId, uip};
+
+        return {aid: bl.aid, ...bundle, ua, deviceId, uip};
       }))
     }))
-    return res
+    return res.flat();
   }
 
   //TODO: Implement creation from form data
