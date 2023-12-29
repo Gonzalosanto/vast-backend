@@ -22,7 +22,7 @@ export class OperatingSystemsService {
   }
 
   async findOne(id: number) {
-    return `This action returns a #${id} operatingSystem`;
+    return this.operatingSystem.findOne({where: {'id': id}});
   }
 
   async update(id: number, updateOperatingSystemDto: UpdateOperatingSystemDto) {

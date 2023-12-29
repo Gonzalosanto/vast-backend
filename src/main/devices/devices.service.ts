@@ -28,8 +28,8 @@ export class DevicesService {
     return this.devicesRepository.findByPk(id);
   }
 
-  async getRandomDevice(limit: number, options?: any){
-    return this.devicesRepository.findAll({attributes: ['deviceid'], order: Sequelize.literal('rand()'), limit: limit, raw: true, ...options})
+  async getRandomDevice(options?: any){
+    return this.devicesRepository.findOne({attributes: ['deviceid'], order: Sequelize.literal('rand()'), raw: true, ...options})
   }
 
   update(id: number, updateDeviceDto: UpdateDeviceDto) {

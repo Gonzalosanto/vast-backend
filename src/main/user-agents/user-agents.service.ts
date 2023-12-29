@@ -65,6 +65,16 @@ export class UserAgentsService {
     }
   }
 
+  async getUserAgentByOS(os: string, options?:any){
+    const operatingSystemId = await this.osService.findBy({'os': os}, {raw:true})
+    const records = await this.userAgentRepository.findOne({where: {'operatingSystemId': operatingSystemId[0].id}, include:[{
+      model: OperatingSystem,
+      attributes: ['os']
+    }], raw: true,
+    order: Sequelize.literal('rand()'), ...options})
+    return records
+  }
+
   async getUserAgentsByOS(os: string, options?:any){
     const operatingSystemId = await this.osService.findBy({'os': os}, {raw:true})
     const records = await this.findAll({where: {'operatingSystemId': operatingSystemId[0].id}, include:[{

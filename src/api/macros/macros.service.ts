@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { BundleStoreNamesService, DevicesService, UipsService, UserAgentsService } from '../../main/index';
+import { BundleStoreNamesService, DevicesService, StoreUrlsService, UipsService, UserAgentsService } from '../../main/index';
 import { processCSVFile } from 'src/utils';
 import { readFileSync, unlinkSync } from 'fs';
 import path from 'path';
@@ -11,6 +11,7 @@ export class MacrosService {
 
   constructor(
     private bundleStoreNameService: BundleStoreNamesService,
+    private storeService: StoreUrlsService,
     private whitelistService: WhitelistsService,
     private userAgents: UserAgentsService,
     private devices: DevicesService,
@@ -19,26 +20,25 @@ export class MacrosService {
 
   async getMacros() {
     const mixData = async (bundles: Array<any>) => {
-      const deviceData = {
-        uas: await this.userAgents.getRandomUas({ raw: true, limit: this.randomLimit }),
-        uips: await this.userIps.getRandomUip(this.randomLimit),
-        deviceids: await this.devices.getRandomDevice(this.randomLimit),
-      };
-      const deviceDataMixed = deviceData.uas.map((ua, index) => {
-        const uip = deviceData.uips[index].uip;
-        const deviceid = deviceData.deviceids[index].deviceid;
-        return { ua: ua.ua, uip, deviceid };
-      });
-      return bundles.map((bundle, index) => {
-        return { ...bundle, ...deviceDataMixed[index] };
-      });
+      const results = bundles.map( async (bundle) => {
+        const bundleOS = await this.storeService.getOS(bundle.store)
+        const ua = (await this.userAgents.getUserAgentByOS(bundleOS)).ua;
+        const deviceId = (await this.devices.getRandomDevice()).deviceid;
+        const uip = (await this.userIps.getRandomUip()).uip;
+
+        return {...bundle, ua, deviceId, uip};
+      })
+      return results;
     };
 
     const wlsInstances = await this.whitelistService.getAllEnabledWhitelists();
     console.log(wlsInstances)
     const bundleListByAID = wlsInstances.map((wl) => {
-      return { aid: wl.supply_aid, bundleList: wl.bundleList };
+      console.log(wl.bundleList)
+      return {aid: wl.supply_aid, bundleList: wl.bundleList}
     });
+    //console.log(bundleListByAID)
+    
     const bsnValues = bundleListByAID.flatMap((bundleList) => {
       const aid = bundleList.aid;
       return bundleList.bundleList.map((bundles: any) => {return ({
@@ -49,7 +49,8 @@ export class MacrosService {
       })});
     });
 
-    const res = await mixData(bsnValues);
+    let res = await mixData(bsnValues);
+    res = await Promise.all(res)
     return res; 
   }
 

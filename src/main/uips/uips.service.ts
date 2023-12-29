@@ -24,8 +24,8 @@ export class UipsService {
     return this.uipRepository.findAll();
   }
 
-  async getRandomUip(limit: number, options?: any){
-    return this.uipRepository.findAll({attributes: ['uip'], order: Sequelize.literal('rand()'), limit: limit, raw: true, ...options})
+  async getRandomUip(options?: any){
+    return this.uipRepository.findOne({attributes: ['uip'], order: Sequelize.literal('rand()'), raw: true, ...options})
   }
 
   async findBy(whereOptions: any, options?: object){
