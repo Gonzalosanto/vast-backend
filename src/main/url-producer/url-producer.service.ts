@@ -11,7 +11,7 @@ export class UrlProducerService implements OnModuleInit {
     
     onModuleInit() {
         try {
-            setInterval(()=>this.produceURLs(),1000)            
+            setInterval(async()=> await this.produceURLs(), 1000)
         } catch (error) {
             console.log(error)
         }
@@ -30,10 +30,12 @@ export class UrlProducerService implements OnModuleInit {
                 return (await url)
             }
         })
-        return Promise.all(urls);
+        const res = await Promise.all(urls)
+        return res;
     }
     async formatURLsToMessages(): Promise<object[]> {
-        return (await this.createURLs()).map((url: string)=> {
+        const URLList = await this.createURLs()
+        return URLList.map((url: string)=> {
             return {
                 "key" : "url",
                 "areResultsLogged": false, //FLAG TO LOG CHAIN RESULTS... (false default)
@@ -43,8 +45,8 @@ export class UrlProducerService implements OnModuleInit {
     async produceURLs(){
         const messages = await this.formatURLsToMessages()
         return messages.forEach((m: any) => {
-            m.value ? console.log([m]) : console.log('undefined message')
-            //this.producerService.topicProducer(process.env.KAFKA_TEST_TOPIC, [m])
-        }) 
+            //m.value ? console.log(m.value) : console.log('undefined message')
+            this.producerService.topicProducer(process.env.KAFKA_TEST_TOPIC, [m])
+        })
     }
 }

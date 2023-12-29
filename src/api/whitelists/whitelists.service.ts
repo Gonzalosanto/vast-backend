@@ -226,7 +226,7 @@ export class WhitelistsService {
         notes: response['aid_form.notes'],
         enabled: response['aid_form.enabled']
       }
-      response['bundleList'] = response['aid_form.whitelisted'] === 0 ? [] : bundleList;
+      response['bundleList'] = bundleList;
 
       const propertiesToDelete = [
         'bundleStoreName.applicationBundle.bundle',

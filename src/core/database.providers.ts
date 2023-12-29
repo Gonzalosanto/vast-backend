@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
+import 'dotenv/config'
 const env = process.env.NODE_ENV || 'development';
 import { applicationBundle } from '../main/bundles/entities/bundles.entity';
 import { BundleStoreName } from 'src/main/bundle-store-names/entities/bundle-store-name.entity';

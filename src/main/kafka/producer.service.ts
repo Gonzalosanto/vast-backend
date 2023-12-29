@@ -36,6 +36,9 @@ export class ProducerService {
     return this.instance;
   }
 
+  isConnected(){
+    return ProducerService.instance._isConnected;
+  }
   async start() {
     try {
       await this.producer.connect();
