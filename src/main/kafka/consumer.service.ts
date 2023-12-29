@@ -11,25 +11,24 @@ export class ConsumerService {
     })
     private consumer: any = this.kafkaClient.consumer({ groupId: 'main-group' });
 
-    public async getInstance() {
-        if (!ConsumerService.instance._isConnected) {
-            await ConsumerService.instance.start()
-            return ConsumerService.instance;
+    static async getInstance() {
+        if (!ConsumerService.instance || !ConsumerService.instance._isConnected) {
+            return ConsumerService.instance = new ConsumerService();
         }
         return ConsumerService.instance;
     }
 
     async handleReportsSubscription(reportHandler: any) {
-        const instance = await this.getInstance()
+        const instance = await ConsumerService.getInstance()
         await instance.consumer.subscribe({ topics: [process.env.KAFKA_TOPIC_REPORTS], fromBeginning: true })
         try {
-            await this.consumer.run({
+            console.log(`Consumer listening topic: ${process.env.KAFKA_TOPIC_REPORTS}`);
+            await instance.consumer.run({
                 eachMessage: async ({
                     topic, partition, message, heartbeat, pause
                 }) => {
                     await heartbeat();
-                    await reportHandler(message);
-                    return message;
+                    await reportHandler(message.value.toString());
                 }
             })
         } catch (error) {
