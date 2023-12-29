@@ -19,39 +19,20 @@ export class MacrosService {
   ) {}
 
   async getMacros() {
-    const mixData = async (bundles: Array<any>) => {
-      const results = bundles.map( async (bundle) => {
+    const wlsInstances = await this.whitelistService.getAllEnabledWhitelists();
+    const bundleList = wlsInstances.map((wl) => {
+      return wl.bundleList
+    });
+    const res = await Promise.all(bundleList.map(async bl=> {
+      return Promise.all(bl.map( async (bundle: any) => {
         const bundleOS = await this.storeService.getOS(bundle.store)
         const ua = (await this.userAgents.getUserAgentByOS(bundleOS)).ua;
         const deviceId = (await this.devices.getRandomDevice()).deviceid;
         const uip = (await this.userIps.getRandomUip()).uip;
-
         return {...bundle, ua, deviceId, uip};
-      })
-      return results;
-    };
-
-    const wlsInstances = await this.whitelistService.getAllEnabledWhitelists();
-    console.log(wlsInstances)
-    const bundleListByAID = wlsInstances.map((wl) => {
-      console.log(wl.bundleList)
-      return {aid: wl.supply_aid, bundleList: wl.bundleList}
-    });
-    //console.log(bundleListByAID)
-    
-    const bsnValues = bundleListByAID.flatMap((bundleList) => {
-      const aid = bundleList.aid;
-      return bundleList.bundleList.map((bundles: any) => {return ({
-        aid: aid,
-        bundle: bundles.bundle,
-        name: bundles.name,
-        store: bundles.store,
-      })});
-    });
-
-    let res = await mixData(bsnValues);
-    res = await Promise.all(res)
-    return res; 
+      }))
+    }))
+    return res
   }
 
   //TODO: Implement creation from form data
