@@ -17,25 +17,23 @@ export class ReportsService {
   ){}
   //Adds a report if not exist supply_aid report for X hour, otherwise, updates it.
   async save(report: Report): Promise<void> {
-    const reportValues = report.dataValues;
+    const reportValues = report;
     const bundleInstance = await this.bundleService.findOne({'bundle':reportValues.bundle})
-    if(!bundleInstance) throw new BadRequestException({message: `Bundle: ${reportValues.bundle} does not exist`})
+    if(!bundleInstance) throw new Error(`${reportValues.bundle} does not exist`);
     const supplyAidFK = await this.supplyRepository.findOne({where: {'aid': reportValues.supply_aid}});
     const demandAidFK = await this.demandRepository.findOrCreate({where: {'aid': reportValues.demand_aid}});
-    const existingReport = await this.reportRepository.findOrCreate({ where: { 'supply_aid': supplyAidFK.id } });
-    await existingReport[0].update({
-      'requests': existingReport[0].requests + reportValues.requests,
-      'impressions': existingReport[0].impressions + reportValues.impressions,
+    const existingReport = await this.reportRepository.findOrCreate({ where: { 'supply_aid': supplyAidFK.id, 'bundle': bundleInstance.id } });
+    await this.reportRepository.update({
+      'requests': (existingReport[0]?.requests ?? 0) + reportValues.requests,
+      'impressions': (existingReport[0]?.impressions ?? 0) + reportValues.impressions,
       'bundle': bundleInstance.id,
       'supply_aid': supplyAidFK.id,
-      'demand_aid': demandAidFK[0].id,
+      'demand_aid': report.demand_aid ? demandAidFK[0]?.id : null,
       'lastTime': new Date().toISOString()
-    });
+    }, {where: {'id': existingReport[0].id}});
+
   }
   async findAll(): Promise<Report[]> {
-    // await this.save(new Report({
-    //   supply_aid: 111111, demand_aid: 123456, requests: 10, impressions: 0, bundle: "14"
-    // }))
     const results = await this.reportRepository.findAll({
       attributes: ['id', 'requests', 'impressions'],
       include: [
